@@ -37,4 +37,8 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    public function student() {
+        return $this->state([]);
+    }
 }

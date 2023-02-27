@@ -1,0 +1,42 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('element_filiere', function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignId('element_id')
+                  ->constrained('elements')
+                  ->onDelete('cascade');
+
+            $table->foreignId('filiere_id')
+                  ->constrained('filieres')
+                  ->onDelete('cascade');
+
+            $table->unique(['element_id', 'filiere_id']);
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('element_filiere');
+    }
+};
