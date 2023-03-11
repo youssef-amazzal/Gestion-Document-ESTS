@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\v1\FileApiController;
-use App\Http\Controllers\v1\UserController;
+use App\Http\Controllers\v1\UserApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +32,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('files', FileApiController::class);
 Route::apiResource('users', UserApiController::class);
 
-Route::get('login', function () {
-    return '<h1>You are not logged in!</h1>';
-})->name('login');
+Route::prefix('auth')->group(function () {
+    Route::post('login', 'App\Http\Controllers\v1\AuthController@login');
+    Route::post('register', 'App\Http\Controllers\v1\AuthController@register');
+    Route::post('logout', 'App\Http\Controllers\v1\AuthController@logout');
+});
