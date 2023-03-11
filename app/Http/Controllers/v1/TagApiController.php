@@ -14,7 +14,8 @@ class TagApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(Tag::all());
     }
 
@@ -26,7 +27,7 @@ class TagApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $tag = Tag::create($request->all());
+        $tag = Tag::query()->create($request->all());
         return response()->json($tag, 201);
     }
 
@@ -38,7 +39,7 @@ class TagApiController extends Controller
      */
     public function show(Tag $tag): JsonResponse
     {
-        $tag = Tag::findOrFail($tag->id);
+        $tag = Tag::query()->findOrFail($tag->id);
         return response()->json($tag);
     }
 
@@ -51,7 +52,7 @@ class TagApiController extends Controller
      */
     public function update(Request $request, Tag $tag): JsonResponse
     {
-        $tag = Tag::findOrFail($tag->id);
+        $tag = Tag::query()->findOrFail($tag->id);
         $tag->update($request->all());
         return response()->json($tag);
     }
@@ -64,7 +65,7 @@ class TagApiController extends Controller
      */
     public function destroy(Tag $tag): JsonResponse
     {
-        $tag = Tag::findOrFail($tag->id);
+        $tag = Tag::query()->findOrFail($tag->id);
         $tag->delete();
         return response()->json(null, 204);
     }

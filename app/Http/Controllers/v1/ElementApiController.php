@@ -14,7 +14,8 @@ class ElementApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(Element::all());
     }
 
@@ -26,7 +27,7 @@ class ElementApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $element = Element::create($request->all());
+        $element = Element::query()->create($request->all());
         return response()->json($element, 201);
     }
 
@@ -38,7 +39,7 @@ class ElementApiController extends Controller
      */
     public function show(Element $element): JsonResponse
     {
-        $element = Element::findOrFail($element->id);
+        $element = Element::query()->findOrFail($element->id);
         return response()->json($element);
     }
 
@@ -51,7 +52,7 @@ class ElementApiController extends Controller
      */
     public function update(Request $request, Element $element): JsonResponse
     {
-        $element = Element::findOrFail($element->id);
+        $element = Element::query()->findOrFail($element->id);
         $element->update($request->all());
         return response()->json($element);
     }
@@ -64,7 +65,7 @@ class ElementApiController extends Controller
      */
     public function destroy(Element $element): JsonResponse
     {
-        $element = Element::findOrFail($element->id);
+        $element = Element::query()->findOrFail($element->id);
         $element->delete();
         return response()->json(null, 204);
     }

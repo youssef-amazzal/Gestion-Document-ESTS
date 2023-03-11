@@ -14,7 +14,8 @@ class FolderApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(Folder::all());
     }
 
@@ -26,7 +27,7 @@ class FolderApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $folder = Folder::create($request->all());
+        $folder = Folder::query()->create($request->all());
         return response()->json($folder, 201);
     }
 
@@ -38,7 +39,7 @@ class FolderApiController extends Controller
      */
     public function show(Folder $folder): JsonResponse
     {
-        $folder = Folder::findOrFail($folder->id);
+        $folder = Folder::query()->findOrFail($folder->id);
         return response()->json($folder);
     }
 
@@ -51,7 +52,7 @@ class FolderApiController extends Controller
      */
     public function update(Request $request, Folder $folder): JsonResponse
     {
-        $folder = Folder::findOrFail($folder->id);
+        $folder = Folder::query()->findOrFail($folder->id);
         $folder->update($request->all());
         return response()->json($folder);
     }
@@ -64,7 +65,7 @@ class FolderApiController extends Controller
      */
     public function destroy(Folder $folder): JsonResponse
     {
-        $folder = Folder::findOrFail($folder->id);
+        $folder = Folder::query()->findOrFail($folder->id);
         $folder->delete();
         return response()->json(null, 204);
     }

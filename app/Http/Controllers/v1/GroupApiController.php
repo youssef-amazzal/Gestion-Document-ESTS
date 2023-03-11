@@ -14,7 +14,8 @@ class GroupApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(Group::all());
     }
 
@@ -26,7 +27,7 @@ class GroupApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $group = Group::create($request->all());
+        $group = Group::query()->create($request->all());
         return response()->json($group, 201);
     }
 
@@ -38,7 +39,7 @@ class GroupApiController extends Controller
      */
     public function show(Group $group): JsonResponse
     {
-        $group = Group::findOrFail($group->id);
+        $group = Group::query()->findOrFail($group->id);
         return response()->json($group);
     }
 
@@ -51,7 +52,7 @@ class GroupApiController extends Controller
      */
     public function update(Request $request, Group $group): JsonResponse
     {
-        $group = Group::findOrFail($group->id);
+        $group = Group::query()->findOrFail($group->id);
         $group->update($request->all());
         return response()->json($group);
     }
@@ -64,7 +65,7 @@ class GroupApiController extends Controller
      */
     public function destroy(Group $group): JsonResponse
     {
-        $group = Group::findOrFail($group->id);
+        $group = Group::query()->findOrFail($group->id);
         $group->delete();
         return response()->json(null, 204);
     }

@@ -14,7 +14,8 @@ class UserApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(User::with("files")->get());
     }
 

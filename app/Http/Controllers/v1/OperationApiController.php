@@ -14,7 +14,8 @@ class OperationApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(Operation::all());
     }
 
@@ -26,7 +27,7 @@ class OperationApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $operation = Operation::create($request->all());
+        $operation = Operation::query()->create($request->all());
         return response()->json($operation, 201);
     }
 
@@ -38,7 +39,7 @@ class OperationApiController extends Controller
      */
     public function show(Operation $operation): JsonResponse
     {
-        $operation = Operation::findOrFail($operation->id);
+        $operation = Operation::query()->findOrFail($operation->id);
         return response()->json($operation);
     }
 
@@ -51,7 +52,7 @@ class OperationApiController extends Controller
      */
     public function update(Request $request, Operation $operation): JsonResponse
     {
-        $operation = Operation::findOrFail($operation->id);
+        $operation = Operation::query()->findOrFail($operation->id);
         $operation->update($request->all());
         return response()->json($operation);
     }
@@ -64,7 +65,7 @@ class OperationApiController extends Controller
      */
     public function destroy(Operation $operation): JsonResponse
     {
-        $operation = Operation::findOrFail($operation->id);
+        $operation = Operation::query()->findOrFail($operation->id);
         $operation->delete();
         return response()->json(null, 204);
     }

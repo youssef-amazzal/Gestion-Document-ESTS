@@ -14,7 +14,8 @@ class FiliereApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(Filiere::all());
     }
 
@@ -26,7 +27,7 @@ class FiliereApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $filiere = Filiere::create($request->all());
+        $filiere = Filiere::query()->create($request->all());
         return response()->json($filiere, 201);
     }
 
@@ -38,7 +39,7 @@ class FiliereApiController extends Controller
      */
     public function show(Filiere $filiere): JsonResponse
     {
-        $filiere = Filiere::findOrFail($filiere->id);
+        $filiere = Filiere::findOrFquery()->findOrFailail($filiere->id);
         return response()->json($filiere);
     }
 
@@ -51,7 +52,7 @@ class FiliereApiController extends Controller
      */
     public function update(Request $request, Filiere $filiere): JsonResponse
     {
-        $filiere = Filiere::findOrFail($filiere->id);
+        $filiere = Filiere::query()->findOrFail($filiere->id);
         $filiere->update($request->all());
         return response()->json($filiere);
     }
@@ -64,7 +65,7 @@ class FiliereApiController extends Controller
      */
     public function destroy(Filiere $filiere): JsonResponse
     {
-        $filiere = Filiere::findOrFail($filiere->id);
+        $filiere = Filiere::query()->findOrFail($filiere->id);
         $filiere->delete();
         return response()->json(null, 204);
     }

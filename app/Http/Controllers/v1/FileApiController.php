@@ -14,7 +14,8 @@ class FileApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(File::all());
     }
 
@@ -26,7 +27,7 @@ class FileApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $file = File::create($request->all());
+        $file = File::query()->create($request->all());
         return response()->json($file, 201);
     }
 
@@ -38,7 +39,7 @@ class FileApiController extends Controller
      */
     public function show(File $file): JsonResponse
     {
-        $file = File::findOrFail($file->id);
+        $file = File::query()->findOrFail($file->id);
         return response()->json($file);
     }
 
@@ -51,7 +52,7 @@ class FileApiController extends Controller
      */
     public function update(Request $request, File $file): JsonResponse
     {
-        $file = File::findOrFail($file->id);
+        $file = File::query()->findOrFail($file->id);
         $file->update($request->all());
         return response()->json($file);
     }
@@ -64,7 +65,7 @@ class FileApiController extends Controller
      */
     public function destroy(File $file): JsonResponse
     {
-        $file = File::findOrFail($file->id);
+        $file = File::query()->findOrFail($file->id);
         $file->delete();
         return response()->json(null, 204);
     }

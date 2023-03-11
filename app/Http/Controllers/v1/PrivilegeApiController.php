@@ -14,7 +14,8 @@ class PrivilegeApiController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(){
+    public function index()
+    {
         return response()->json(Privilege::all());
     }
 
@@ -26,7 +27,7 @@ class PrivilegeApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $privilege = Privilege::create($request->all());
+        $privilege = Privilege::query()->create($request->all());
         return response()->json($privilege, 201);
     }
 
@@ -38,7 +39,7 @@ class PrivilegeApiController extends Controller
      */
     public function show(Privilege $privilege): JsonResponse
     {
-        $privilege = Privilege::findOrFail($privilege->id);
+        $privilege = Privilege::query()->findOrFail($privilege->id);
         return response()->json($privilege);
     }
 
@@ -51,7 +52,7 @@ class PrivilegeApiController extends Controller
      */
     public function update(Request $request, Privilege $privilege): JsonResponse
     {
-        $privilege = Privilege::findOrFail($privilege->id);
+        $privilege = Privilege::query()->findOrFail($privilege->id);
         $privilege->update($request->all());
         return response()->json($privilege);
     }
@@ -64,7 +65,7 @@ class PrivilegeApiController extends Controller
      */
     public function destroy(Privilege $privilege): JsonResponse
     {
-        $privilege = Privilege::findOrFail($privilege->id);
+        $privilege = Privilege::query()->findOrFail($privilege->id);
         $privilege->delete();
         return response()->json(null, 204);
     }
