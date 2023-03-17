@@ -57,7 +57,7 @@ class User extends Authenticatable
     }
 
     public function privileges() {
-        return $this->hasMany(Privilege::class, 'granted_to');
+        return $this->morphMany(Privilege::class, 'grantee');
     }
 
 

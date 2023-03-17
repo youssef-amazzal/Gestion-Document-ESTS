@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\Privileges;
+use App\Models\Group;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Arr;
@@ -27,11 +28,15 @@ class PrivilegeFactory extends Factory
 
         $privilege = $this->faker->unique()->randomElement(array_merge($file_privileges, $system_privileges));
 
+        $grantee_type = [User::class, Group::class];
+        $grantee_type = $grantee_type[array_rand($grantee_type)];
+
         return [
             'type' => $privilege[0],
-            'name' => $privilege[1],
-            'granted_by' => User::query()->inRandomOrder()->first(),
-            'granted_to' => User::query()->inRandomOrder()->first(),
+            'action' => $privilege[1],
+            'grantor_id' => User::query()->inRandomOrder()->first(),
+            'grantee_type' => $grantee_type,
+            'grantee_id' => $grantee_type::query()->inRandomOrder()->first(),
         ];
     }
 }

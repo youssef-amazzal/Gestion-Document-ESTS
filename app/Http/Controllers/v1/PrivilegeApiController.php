@@ -27,6 +27,21 @@ class PrivilegeApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $request->validate([
+            'action' => 'required',
+            'grantor_id' => 'required',
+            'grantee_id' => 'required',
+            'grantee_type' => 'required'
+        ]);
+
+        $request['type'] = (str_starts_with($request->action, 'file_') ? 'file' : 'system');
+
+        if ($request['type'] === 'file') {
+            $request->validate([
+                'granted_on' => 'required|string',
+            ]);
+        }
+
         $privilege = Privilege::query()->create($request->all());
         return response()->json($privilege, 201);
     }
