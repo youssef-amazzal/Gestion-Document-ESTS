@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\Privileges;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Arr;
@@ -18,34 +19,10 @@ class PrivilegeFactory extends Factory
      */
     public function definition()
     {
-        $file_privileges = [
-            // File privileges
-            'create',
-            'read',
-            'update',
-            'delete',
-            'share',
-            'download',
-            'upload',
-        ];
-
+        $file_privileges = array_filter(Privileges::cases(), fn($privilege) => str_starts_with($privilege->value, 'file_'));
         $file_privileges = Arr::crossJoin(['file'], $file_privileges);
 
-        $system_privileges = [
-            // System privileges
-            'grant',
-            'revoke',
-            'create_group',
-            'delete_group',
-            'add_user_to_group',
-            'remove_user_from_group',
-            'create_user',
-            'edit_user',
-            'delete_user',
-            'backup',
-            'restore',
-        ];
-
+        $system_privileges = array_filter(Privileges::cases(), fn($privilege) => str_starts_with($privilege->value, 'system_'));
         $system_privileges = Arr::crossJoin(['system'], $system_privileges);
 
         $privilege = $this->faker->unique()->randomElement(array_merge($file_privileges, $system_privileges));

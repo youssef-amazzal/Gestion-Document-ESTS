@@ -39,7 +39,7 @@ class UserApiController extends Controller
      */
     public function show(User $user): JsonResponse
     {
-        $user = User::with("files")->findOrFail($user->id);
+        $user = User::with(["files", "privileges"])->findOrFail($user->id);
         return response()->json($user);
     }
 

@@ -56,6 +56,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class);
     }
 
+    public function privileges() {
+        return $this->hasMany(Privilege::class, 'granted_to');
+    }
 
 
 }

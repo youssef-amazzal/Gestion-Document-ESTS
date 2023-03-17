@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Privileges;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,16 +19,20 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @property string $type
  * @property string $granted_to
  * @property string $granted_by
- * @property string $granted_at
+ * @property string $granted_on
  *
  */
 class Privilege extends Model
 {
     use HasFactory;
 
+    protected $casts = [
+        'name' => Privileges::class,
+    ];
+
     public function file(): BelongsTo
     {
-        return $this->belongsTo(File::class, 'granted_at');
+        return $this->belongsTo(File::class, 'granted_on');
     }
 
     public function grantee(): BelongsTo

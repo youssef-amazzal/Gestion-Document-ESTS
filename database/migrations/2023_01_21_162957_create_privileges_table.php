@@ -16,28 +16,7 @@ return new class extends Migration
         Schema::create('privileges', function (Blueprint $table) {
             $table->id();
             $table->enum('type', ['file', 'system']);
-            $table->enum('name', [
-                // File privileges
-                'create',
-                'read',
-                'update',
-                'delete',
-                'share',
-                'download',
-                'upload',
-                // System privileges
-                'grant',
-                'revoke',
-                'create_group',
-                'delete_group',
-                'add_user_to_group',
-                'remove_user_from_group',
-                'create_user',
-                'edit_user',
-                'delete_user',
-                'backup',
-                'restore'
-            ]);
+            $table->string('name');
             $table->foreignId('granted_on')
                   ->nullable()
                   ->constrained('files')
