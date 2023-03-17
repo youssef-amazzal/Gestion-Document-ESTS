@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
+            FiliereSeeder::class,
             TagSeeder::class,
             UserSeeder::class,
             FileSeeder::class,
@@ -22,7 +23,6 @@ class DatabaseSeeder extends Seeder
             GroupSeeder::class,
             FolderSeeder::class,
             ElementSeeder::class,
-            FiliereSeeder::class,
             OperationSeeder::class,
         ]);
 
