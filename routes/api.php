@@ -39,3 +39,4 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::post('/file-upload', [FileApiController::class, 'upload']);
+Route::get('/files/{id}/download', [FileApiController::class, 'download']);

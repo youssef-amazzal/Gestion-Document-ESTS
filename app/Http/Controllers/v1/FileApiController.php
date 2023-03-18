@@ -44,6 +44,16 @@ class FileApiController extends Controller
         return response()->json($fileUpload, 201);
     }
 
+    public function download($id)
+    {
+        $file = File::query()->findOrFail($id);
+
+        $filePath = storage_path('app/public/' . $file->path());
+
+        return response()->download($filePath, $file->name());
+    }
+
+
     /**
      * Display the specified resource.
      *
