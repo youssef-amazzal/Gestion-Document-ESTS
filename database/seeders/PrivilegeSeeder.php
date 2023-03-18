@@ -16,18 +16,7 @@ class PrivilegeSeeder extends Seeder
     public function run()
     {
         Privilege::factory()
-            ->count(16)
-            ->state(function (array $attributes) {
-                if ($attributes['type'] === 'file') {
-                    return [
-                        'granted_on' => File::query()->inRandomOrder()->first()
-                    ];
-                } else {
-                    return [
-                        'granted_on' => null
-                    ];
-                }
-            })
+            ->count(100)
             ->create();
 
     }

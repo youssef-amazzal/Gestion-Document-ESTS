@@ -26,4 +26,24 @@ enum Privileges : string
     case SystemBackup = 'system_backup';
     case SystemRestore = 'system_restore';
 
+    public static function getType(Privileges|string $privilege): string
+    {
+        if ($privilege instanceof Privileges) {
+            $privilege = $privilege->value;
+        }
+        return (str_starts_with($privilege, 'file_') ? 'file' : 'system');
+    }
+
+    public static function filePrivileges(): array
+    {
+        return array_filter(Privileges::cases(), fn($privilege) => self::getType($privilege) === 'file');
+    }
+
+    public static function systemPrivileges(): array
+    {
+        return array_filter(Privileges::cases(), fn($privilege) => self::getType($privilege) === 'system');
+    }
+
+
+
 }

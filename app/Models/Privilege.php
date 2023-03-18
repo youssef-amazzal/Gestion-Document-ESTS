@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
@@ -15,34 +16,45 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * @mixin EloquentBuilder
  *
  * @property int $id
- * @property string $name
+ * @property string $action
  * @property string $type
- * @property string $granted_to
- * @property string $granted_by
- * @property string $granted_on
  *
  */
 class Privilege extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'action',
+        'type',
+        'target_id',
+        'grantee_type',
+        'grantee_id',
+        'grantor_id',
+    ];
+
     protected $casts = [
-        'name' => Privileges::class,
+        'action' => Privileges::class,
     ];
 
     public function file(): BelongsTo
     {
-        return $this->belongsTo(File::class, 'granted_on');
+        return $this->belongsTo(File::class, 'target_id');
     }
 
-    public function grantee(): BelongsTo
+    public function grantee(): MorphTo
     {
-        return $this->belongsTo(User::class, 'granted_to');
+        return $this->morphTo('grantee');
     }
 
     public function grantor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'granted_by');
+        return $this->belongsTo(User::class, 'grantor_id');
+    }
+
+    public function target(): MorphTo
+    {
+        return $this->morphTo('target');
     }
 
 }

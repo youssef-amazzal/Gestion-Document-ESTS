@@ -13,6 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
+        /*
+         * todo : find a way to implement short links to files and folders
+         *  currently, this table is not used. Later, it may or may not be used if we wanted to implement
+         *  a way for a user to have short links to files and folders that he does or doesn't own.
+         */
         Schema::create('file_folder', function (Blueprint $table) {
             $table->id();
 

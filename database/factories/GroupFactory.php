@@ -2,11 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Privilege;
+use App\Models\Filiere;
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use OverflowException;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Group>
+ * @extends Factory<Group>
  */
 class GroupFactory extends Factory
 {
@@ -15,32 +18,44 @@ class GroupFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
         $groups = [
-            'Admin',
-            'Teacher',
-            'Student',
+            'Admins',
+            'Staff',
+            'Teachers',
+            'Students',
+            'First Year',
+            'Second Year',
+            'Clubs',
+            'Robotic Club',
+            'Art Club',
+            'Public'
         ];
-        return [
-            'name' => $this->faker->unique()->randomElement($groups),
-        ];
+
+
+        $class = Filiere::query()->inRandomOrder()->first();
+        $class = $class->abbreviation . '-' . $class->promotion;
+
+        try {
+            return [
+                'name' => $this->faker->unique()->randomElement($groups),
+            ];
+        } catch (OverflowException) {
+            return [
+                'name' => $class,
+            ];
+        }
     }
 
-    public function configure()
+    public function configure(): GroupFactory
     {
         return $this->afterCreating(function ($group) {
-            if ($group->name === 'Admin') {
-                $group->privileges()->attach(Privilege::all());
-            }
-
-            elseif ($group->name === 'Teacher') {
-                return $group->privileges()->attach(Privilege::query()->where('type', '==', 'file')->get());
-            }
-
-            else {
-                return $group->privileges()->attach(Privilege::query()->where('name', '==', 'read')->get());
-            }
+            $group->memebers()->attach(User::query()->inRandomOrder()
+                                                    ->limit(5)
+                                                    ->get(),
+                                                    ['created_at' => now(),
+                                                     'updated_at' => now()]);
         });
     }
 }

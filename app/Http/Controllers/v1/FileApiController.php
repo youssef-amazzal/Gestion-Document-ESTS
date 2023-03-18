@@ -43,7 +43,6 @@ class FileApiController extends Controller
 
         return response()->json($fileUpload, 201);
     }
-
     public function download($id)
     {
         $file = File::query()->findOrFail($id);
@@ -52,7 +51,6 @@ class FileApiController extends Controller
 
         return response()->download($filePath, $file->name());
     }
-
 
     /**
      * Display the specified resource.

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\v1;
 
+use App\Enums\Privileges;
 use App\Http\Controllers\Controller;
 use App\Models\Privilege;
 use Illuminate\Http\JsonResponse;
@@ -27,6 +28,21 @@ class PrivilegeApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $request->validate([
+            'action'        => 'required',
+            'grantor_id'    => 'required',
+            'grantee_id'    => 'required',
+            'grantee_type'  => 'required'
+        ]);
+
+        $request['type'] = Privileges::getType($request['action']);
+
+        if ($request['type'] === 'file') {
+            $request->validate([
+                'target_id' => 'required|string',
+            ]);
+        }
+
         $privilege = Privilege::query()->create($request->all());
         return response()->json($privilege, 201);
     }

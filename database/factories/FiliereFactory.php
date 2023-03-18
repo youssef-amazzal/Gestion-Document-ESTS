@@ -49,11 +49,4 @@ class FiliereFactory extends Factory
             'promotion' => $promotion
         ];
     }
-
-    public function configure()
-    {
-        return $this->afterCreating(function ($filiere) {
-            $filiere->elements()->attach(Element::query()->inRandomOrder()->limit(5)->get());
-        });
-    }
 }

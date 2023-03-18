@@ -13,18 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('file_tag', function (Blueprint $table) {
+        Schema::create('taggables', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId   ('file_id')
-                  ->constrained ('files')
-                  ->onDelete    ('cascade');
-
-            $table->foreignId   ('tag_id')
-                  ->constrained ('tags')
-                  ->onDelete    ('cascade');
-
-            $table->unique(['file_id', 'tag_id']);
+            $table->foreignId('tag_id')
+                  ->constrained('tags')
+                  ->onDelete('cascade');
+            // can be a file or a folder.
+            $table->string('taggable_type');
+            $table->foreignId('taggable_id');
             $table->timestamps();
         });
     }
@@ -36,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('file_tag');
+        Schema::dropIfExists('taggables');
     }
 };

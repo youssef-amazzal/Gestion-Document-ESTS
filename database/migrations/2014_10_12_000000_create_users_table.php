@@ -17,12 +17,10 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('role');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('is_admin')->default(false);
-            $table->boolean('is_student')->default(false);
-            $table->boolean('is_teacher')->default(false);
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
 
             $table->foreignId('stu_major')
