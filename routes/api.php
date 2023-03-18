@@ -37,3 +37,5 @@ Route::prefix('auth')->group(function () {
     Route::post('register', 'App\Http\Controllers\v1\AuthController@register');
     Route::post('logout', 'App\Http\Controllers\v1\AuthController@logout');
 });
+
+Route::post('/file-upload', [FileApiController::class, 'upload']);

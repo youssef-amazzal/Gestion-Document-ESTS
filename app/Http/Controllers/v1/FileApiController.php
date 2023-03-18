@@ -25,10 +25,23 @@ class FileApiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function upload(Request $request): JsonResponse
     {
-        $file = File::query()->create($request->all());
-        return response()->json($file, 201);
+        $request->validate([
+            'file' => 'required'
+        ]);
+
+        $file = $request->file('file');
+
+        $fileUpload = new File;
+        $fileUpload->name = $file->getClientOriginalName();
+        $fileUpload->description = $request->input('description');
+        $fileUpload->path = $file->store('uploads', 'public');
+        $fileUpload->mime_type = $file->getClientMimeType();
+        $fileUpload->size = $file->getSize();
+        $fileUpload->save();
+
+        return response()->json($fileUpload, 201);
     }
 
     /**
@@ -69,4 +82,6 @@ class FileApiController extends Controller
         $file->delete();
         return response()->json(null, 204);
     }
+
+
 }
