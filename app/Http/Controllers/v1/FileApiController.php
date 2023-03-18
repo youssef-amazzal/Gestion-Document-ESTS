@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use PHPUnit\Util\Filesystem;
 
 class FileApiController extends Controller
 {
@@ -29,6 +30,11 @@ class FileApiController extends Controller
     {
         $file = File::query()->create($request->all());
         return response()->json($file, 201);
+    }
+
+    public function upload(Request $request): JsonResponse
+    {
+        $file = Filesystem::putFile('public', $request->file('file'));
     }
 
     /**

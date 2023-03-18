@@ -15,6 +15,6 @@ class ElementSeeder extends Seeder
      */
     public function run()
     {
-        Element::factory()->count(100)->create();
+        Element::factory()->count(50)->create();
     }
 }

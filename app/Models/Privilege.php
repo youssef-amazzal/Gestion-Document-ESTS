@@ -27,7 +27,7 @@ class Privilege extends Model
     protected $fillable = [
         'action',
         'type',
-        'granted_on',
+        'target_id',
         'grantee_type',
         'grantee_id',
         'grantor_id',
@@ -39,7 +39,7 @@ class Privilege extends Model
 
     public function file(): BelongsTo
     {
-        return $this->belongsTo(File::class, 'granted_on');
+        return $this->belongsTo(File::class, 'target_id');
     }
 
     public function grantee(): MorphTo
@@ -50,6 +50,11 @@ class Privilege extends Model
     public function grantor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'grantor_id');
+    }
+
+    public function target(): MorphTo
+    {
+        return $this->morphTo('target');
     }
 
 }

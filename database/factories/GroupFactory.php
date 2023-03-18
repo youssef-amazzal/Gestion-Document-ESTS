@@ -33,8 +33,9 @@ class GroupFactory extends Factory
             'Public'
         ];
 
-        $class = Filiere::query()->inRandomOrder()->first()->abbreviation;
-        $class = $class . '-' . $this->faker->randomElement(['A', 'B']);
+
+        $class = Filiere::query()->inRandomOrder()->first();
+        $class = $class->abbreviation . '-' . $class->promotion;
 
         try {
             return [

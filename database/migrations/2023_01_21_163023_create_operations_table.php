@@ -19,9 +19,9 @@ return new class extends Migration
                   ->constrained('users')
                   ->onDelete('cascade');
 
-            $table->foreignId('file_id')
-                  ->constrained('files')
-                  ->onDelete('cascade');
+            // can be a file or a folder
+            $table->foreignId('trackable_id');
+            $table->string('trackable_type');
 
             $table->enum('type', [
                 'create',

@@ -22,13 +22,12 @@ return new class extends Migration
             $table->string              ('path', 255);
             $table->string              ('mime_type');
 
-            $table->foreignId('folder_id')
+            $table->foreignId('parent_folder_id')
                   ->nullable()
                   ->constrained('folders')
                   ->onDelete('cascade');
 
             $table->foreignId('owner_id')
-                    ->nullable()
                     ->constrained('users')
                     ->onDelete('cascade');
 
@@ -43,7 +42,7 @@ return new class extends Migration
                 BEGIN
                     UPDATE folders
                     SET size = size + NEW.size
-                    WHERE id = NEW.folder_id;
+                    WHERE id = NEW.parent_folder_id;
                 END
             ");
     }

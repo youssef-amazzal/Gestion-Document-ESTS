@@ -15,14 +15,21 @@ return new class extends Migration
     {
         Schema::create('elements', function (Blueprint $table) {
             $table->id();
-            $table->string  ('name')->unique();
+            $table->string  ('name');
             $table->timestamps();
 
             $table->foreignId('filiere_id')
-                  ->nullable()
                   ->constrained('filieres')
                   ->onDelete('cascade');
+
+            $table->foreignId('professor_id')
+                  ->constrained('users')
+                  ->onDelete('no action');
+
+            $table->unique(['name', 'filiere_id']);
         });
+
+
     }
 
     /**

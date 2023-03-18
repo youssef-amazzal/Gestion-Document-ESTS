@@ -16,9 +16,9 @@ class AuthController extends Controller
         $validatedData = $request->validate([
             'first_name' => 'required|string',
             'last_name'  => 'required|string',
-            'name'      => 'required|string',
-            'email'     => 'required|string|email|unique:users',
-            'password'  => 'required|string|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
+            'name'       => 'required|string',
+            'email'      => 'required|string|email|unique:users',
+            'password'   => 'required|string|confirmed|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/',
             'password_confirmation' => 'required'
         ]);
 

@@ -12,17 +12,17 @@ class DatabaseSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->call([
             FiliereSeeder::class,
-            TagSeeder::class,
             UserSeeder::class,
-            FileSeeder::class,
-            PrivilegeSeeder::class,
-            GroupSeeder::class,
-            FolderSeeder::class,
             ElementSeeder::class,
+            TagSeeder::class,
+            FolderSeeder::class,
+            FileSeeder::class,
+            GroupSeeder::class,
+            PrivilegeSeeder::class,
             OperationSeeder::class,
         ]);
 

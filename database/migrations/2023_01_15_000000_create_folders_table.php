@@ -17,13 +17,17 @@ return new class extends Migration
             $table->id();
             $table->string              ('name', 100);
             $table->text                ('description')->nullable();
-            $table->unsignedBigInteger  ('size');
+            $table->unsignedBigInteger  ('size')->default(0);
             $table->string              ('path', 255);
 
             $table->foreignId('owner_id')
-                    ->nullable()
                     ->constrained('users')
                     ->onDelete('cascade');
+
+            $table->foreignId('parent_folder_id')
+                ->nullable()
+                ->constrained('folders')
+                ->onDelete('cascade');
 
 
 

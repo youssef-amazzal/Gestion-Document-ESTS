@@ -17,15 +17,13 @@ return new class extends Migration
             $table->id();
             $table->enum('type', ['file', 'system']);
             $table->string('action');
-            $table->foreignId('granted_on')
-                  ->nullable()
-                  ->constrained('files')
-                  ->onDelete('cascade');
-
             $table->foreignId('grantor_id')
-                  ->nullable() //nullable because there will be an admin user that will be created by the system
-                  ->constrained('users')
-                  ->onDelete('cascade');
+                ->nullable() //nullable because there will be an admin user that will be created by the system
+                ->constrained('users')
+                ->onDelete('cascade');
+            // the privilege is granted on the target (file or folder)
+            $table->foreignId('target_id')->nullable();
+            $table->string('target_type')->nullable();
             // can be either a user or a group
             $table->foreignId('grantee_id');
             $table->string('grantee_type');

@@ -15,4 +15,17 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 class Tag extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+    ];
+
+    public function files() {
+        return $this->morphedByMany(File::class, 'taggable');
+    }
+
+    public function folders() {
+        return $this->morphedByMany(Folder::class, 'taggable');
+    }
 }

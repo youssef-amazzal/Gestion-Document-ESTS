@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Folder;
 use Illuminate\Database\Seeder;
 
 class FolderSeeder extends Seeder
@@ -14,6 +14,10 @@ class FolderSeeder extends Seeder
      */
     public function run()
     {
-        //
+        Folder::factory()->count(10)->create();
+        Folder::factory()->count(10)->create();
+        Folder::factory()->count(10)->create();
+        Folder::factory()->count(10)->create();
+        Folder::factory()->count(10)->create();
     }
 }

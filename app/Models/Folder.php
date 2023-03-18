@@ -15,4 +15,38 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 class Folder extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'path',
+    ];
+
+    public function owner() {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function parentFolder() {
+        return $this->belongsTo(Folder::class, 'folder_id');
+    }
+
+    public function privileges() {
+        return $this->morphMany(Privilege::class, 'target');
+    }
+
+    public function files() {
+        return $this->hasMany(File::class, 'folder_id');
+    }
+
+    public function folders() {
+        return $this->hasMany(Folder::class, 'folder_id');
+    }
+
+    public function tags() {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    public function operations() {
+        return $this->morphMany(Operation::class, 'trackable');
+    }
 }
