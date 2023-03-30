@@ -22,6 +22,11 @@ class Folder extends Model
         'path',
     ];
 
+    // When a folder is updated, update the updated_at timestamp of the parent folder
+    protected $touches = [
+        'parentFolder',
+    ];
+
     public function owner() {
         return $this->belongsTo(User::class, 'owner_id');
     }
