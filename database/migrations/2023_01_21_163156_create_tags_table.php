@@ -15,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('tags', function (Blueprint $table) {
             $table->id();
-            $table->string  ('name')->unique();
+            $table->string  ('name');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             // todo : rethink of the possibility to add a column to store the tag's color, and the tag's icon...
             $table->timestamps();
         });

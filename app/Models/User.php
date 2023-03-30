@@ -19,11 +19,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'firstName',
-        'lastName',
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
+        'role',
+        'avatar',
     ];
 
     /**
@@ -32,7 +33,10 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $hidden = [
-        'password'
+        'password',
+        'email_verified_at',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -49,6 +53,18 @@ class User extends Authenticatable
         return $this->hasMany(File::class, 'owner_id');
     }
 
+    public function spaces() {
+        return $this->hasMany(Space::class, 'owner_id');
+    }
+
+    public function tags() {
+        return $this->hasMany(Tag::class);
+    }
+
+    public function folders() {
+        return $this->hasMany(Folder::class, 'owner_id');
+    }
+
     public function operations() {
         return $this->hasMany(Operation::class);
     }
@@ -61,5 +77,12 @@ class User extends Authenticatable
         return $this->morphMany(Privilege::class, 'grantee');
     }
 
+    public function createdGroups() {
+        return $this->hasMany(Group::class);
+    }
+
+    public function filieres() {
+        return $this->belongsToMany(Filiere::class);
+    }
 
 }

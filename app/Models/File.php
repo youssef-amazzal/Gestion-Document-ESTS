@@ -31,11 +31,20 @@ class File extends Model
         return $this->belongsTo(Folder::class, 'folder_id');
     }
 
+    public function space() {
+        return $this->belongsTo(Space::class, 'space_id');
+    }
+
+    public function originalFile() {
+        return $this->belongsTo(Folder::class, 'original_id');
+    }
+
     public function privileges() {
         return $this->morphMany(Privilege::class, 'target');
     }
 
-    public function tags() {
+    public function tags(): \Illuminate\Database\Eloquent\Relations\MorphToMany
+    {
         return $this->morphToMany(Tag::class, 'taggable');
     }
 

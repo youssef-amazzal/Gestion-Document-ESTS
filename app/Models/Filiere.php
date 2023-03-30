@@ -19,11 +19,11 @@ class Filiere extends Model
 
     protected $fillable = ['name', 'abbreviation', 'promotion'];
 
-    public function elements() {
-        return $this->hasMany(Element::class);
+    public function students() {
+        return $this->belongsToMany(User::class)->where('role', Roles::STUDENT);
     }
 
-    public function students() {
-        return $this->hasMany(User::class)->where('role', Roles::STUDENT);
+    public function professors() {
+        return $this->belongsToMany(User::class)->where('role', Roles::PROFESSOR);
     }
 }

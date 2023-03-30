@@ -27,8 +27,19 @@ return new class extends Migration
                   ->constrained('folders')
                   ->onDelete('cascade');
 
+            $table->boolean             ('is_shortcut')->default(false);
+            $table->foreignId('original_id')
+                  ->nullable()
+                  ->constrained('files')
+                  ->onDelete('cascade');
+
+
             $table->foreignId('owner_id')
                     ->constrained('users')
+                    ->onDelete('cascade');
+
+            $table->foreignId('space_id')
+                    ->constrained('spaces')
                     ->onDelete('cascade');
 
             $table->timestamps();

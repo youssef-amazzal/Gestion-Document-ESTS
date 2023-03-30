@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\Roles;
+use App\Models\Filiere;
+use App\Models\Space;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -28,5 +30,22 @@ class UserFactory extends Factory
             'password'          => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
             'role'              => ($dice !== 0) ? Roles::STUDENT : Roles::PROFESSOR,
         ];
+    }
+
+    public function configure(): UserFactory
+    {
+        return $this->afterCreating(function ($user) {
+            if ($user->role === Roles::STUDENT) {
+                $user->filieres()->attach(Filiere::query()->inRandomOrder()->first(), ['year' => now()->year]);
+            }
+            else if ($user->role === Roles::PROFESSOR) {
+                $user->filieres()->attach(Filiere::query()->inRandomOrder()->take(rand(1, 3))->get(), ['year' => now()->year]);
+            }
+
+            $user->spaces()->create(['name' => 'Espace personnel', 'is_permanent' => true]);
+            if ($user->role === Roles::PROFESSOR) {
+                $user->spaces()->create(['name' => 'Espace de cours']);
+            }
+        });
     }
 }

@@ -14,6 +14,6 @@ class FiliereSeeder extends Seeder
      */
     public function run()
     {
-        Filiere::factory()->count(40)->create();
+        Filiere::factory()->count(7)->create();
     }
 }

@@ -18,15 +18,9 @@ return new class extends Migration
             $table->id();
             $table->string  ('name');
             $table->string  ('abbreviation');
-            $table->string  ('promotion');
             $table->enum    ('type', ['filiere', 'option']);
 
-            $table->foreignId('parent_filiere_id')
-                  ->nullable()
-                  ->constrained('filieres')
-                  ->onDelete('cascade');
-
-            $table->unique(['name', 'promotion']);
+            $table->unique(['name']);
 
            // create trigger to update the type to option when parent_filiere_id is not null or to filiere when it is null
 //              DB::unprepared("

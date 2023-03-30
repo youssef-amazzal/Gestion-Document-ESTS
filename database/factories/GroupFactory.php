@@ -40,10 +40,12 @@ class GroupFactory extends Factory
         try {
             return [
                 'name' => $this->faker->unique()->randomElement($groups),
+                'user_id' => User::query()->inRandomOrder()->first()->id,
             ];
         } catch (OverflowException) {
             return [
                 'name' => $class,
+                'user_id' => User::query()->inRandomOrder()->first()->id,
             ];
         }
     }

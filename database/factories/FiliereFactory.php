@@ -28,25 +28,15 @@ class FiliereFactory extends Factory
             'ARI'   => 'Administration de Reseaux Informatiques'
             ];
 
-        $promotion = range(2015, 2022);
-
-        // generate a cartesian product of the two arrays
-        $filiere_promotion = Arr::crossJoin($filieres, $promotion);
-
         // pick a random element from the cartesian product
-        $filiere_promotion = $this->faker->unique()->randomElement($filiere_promotion);
+        $filiere_v = $this->faker->unique()->randomElement($filieres);
 
-        // get the filiere name and abbreviation
-        $filiere_v = $filiere_promotion[0];
+        //abbreviation
         $filiere_k = array_search($filiere_v, $filieres);
-
-        // get the promotion
-        $promotion = $filiere_promotion[1];
 
         return [
             'name' => $filiere_v,
             'abbreviation' => $filiere_k,
-            'promotion' => $promotion
         ];
     }
 }

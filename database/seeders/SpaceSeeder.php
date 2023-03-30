@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Element;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class ElementSeeder extends Seeder
+class SpaceSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,6 +14,6 @@ class ElementSeeder extends Seeder
      */
     public function run()
     {
-        Element::factory()->count(50)->create();
+        //
     }
 }

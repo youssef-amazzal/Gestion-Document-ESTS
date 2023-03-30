@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Space;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,7 +28,8 @@ class UserApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $user = User::create($request->all());
+        $user = User::query()->create($request->all());
+        $user->spaces()->create(['name' => 'Espace personnel', 'is_permanent' => true]);
         return response()->json($user, 201);
     }
 

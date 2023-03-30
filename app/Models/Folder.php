@@ -30,6 +30,14 @@ class Folder extends Model
         return $this->belongsTo(Folder::class, 'folder_id');
     }
 
+    public function space() {
+        return $this->belongsTo(Space::class, 'space_id');
+    }
+
+    public function originalFolder() {
+        return $this->belongsTo(Folder::class, 'original_id');
+    }
+
     public function privileges() {
         return $this->morphMany(Privilege::class, 'target');
     }

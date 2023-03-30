@@ -37,11 +37,6 @@ class Privilege extends Model
         'action' => Privileges::class,
     ];
 
-    public function file(): BelongsTo
-    {
-        return $this->belongsTo(File::class, 'target_id');
-    }
-
     public function grantee(): MorphTo
     {
         return $this->morphTo('grantee');

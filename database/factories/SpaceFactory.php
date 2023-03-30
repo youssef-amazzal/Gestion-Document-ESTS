@@ -2,13 +2,12 @@
 
 namespace Database\Factories;
 
-use App\Models\Tag;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Tag>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Space>
  */
-class TagFactory extends Factory
+class SpaceFactory extends Factory
 {
     /**
      * Define the model's default state.

@@ -13,23 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('elements', function (Blueprint $table) {
+        Schema::create('spaces', function (Blueprint $table) {
             $table->id();
-            $table->string  ('name');
+            $table->string('name');
+            $table->boolean('is_permanent')->default(false);
+            $table->foreignId('owner_id')->constrained('users');
             $table->timestamps();
-
-            $table->foreignId('filiere_id')
-                  ->constrained('filieres')
-                  ->onDelete('cascade');
-
-            $table->foreignId('professor_id')
-                  ->constrained('users')
-                  ->onDelete('no action');
-
-            $table->unique(['name', 'filiere_id']);
         });
-
-
     }
 
     /**
@@ -39,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('elements');
+        Schema::dropIfExists('spaces');
     }
 };

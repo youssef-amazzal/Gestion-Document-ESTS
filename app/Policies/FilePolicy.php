@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\File;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Auth\Access\Response;
 
 class FilePolicy
 {
@@ -30,7 +31,7 @@ class FilePolicy
      */
     public function view(User $user, File $file)
     {
-        //
+        return $user->id === $file->owner->id;
     }
 
     /**
@@ -41,7 +42,7 @@ class FilePolicy
      */
     public function create(User $user)
     {
-        //
+
     }
 
     /**

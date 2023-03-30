@@ -6,7 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\File;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use PHPUnit\Util\Filesystem;
+use Illuminate\Support\Facades\Storage;
+
 
 class FileApiController extends Controller
 {
@@ -34,7 +35,34 @@ class FileApiController extends Controller
 
     public function upload(Request $request): JsonResponse
     {
-        $file = Filesystem::putFile('public', $request->file('file'));
+        $request->validate([
+            'file' => 'required'
+        ]);
+
+        // Todo : we should consider encrypting the file before storing it
+
+        $file = $request->file('file');
+
+        $fileUpload = new File;
+        $fileUpload->name = $file->getClientOriginalName();
+        $fileUpload->description = $request->input('description');
+        $fileUpload->path = $file->storeAs('uploads', $file->getClientOriginalName());
+        $fileUpload->mime_type = $file->getClientMimeType();
+        $fileUpload->size = $file->getSize();
+        $fileUpload->owner_id = $request->user()->id;
+        $fileUpload->save();
+
+        return response()->json($fileUpload, 201);
+    }
+    public function download(File $file)
+    {
+        $file = File::query()->findOrFail($file->id);
+
+        $filePath = storage_path('app\\' . $file->path);
+
+        return response()->download($filePath, $file->name, [
+            'Content-Type' => $file->mime_type,
+        ]);
     }
 
     /**
@@ -43,8 +71,11 @@ class FileApiController extends Controller
      * @param File $file
      * @return JsonResponse
      */
-    public function show(File $file): JsonResponse
+    public function show(Request $request, File $file): JsonResponse
     {
+        if ($request->user()->cannot('view', $file)) {
+            return response()->json(['message' => 'You do not own this file. [controller]'], 403);
+        }
         $file = File::query()->findOrFail($file->id);
         return response()->json($file);
     }
@@ -73,6 +104,7 @@ class FileApiController extends Controller
     {
         $file = File::query()->findOrFail($file->id);
         $file->delete();
+        Storage::disk('local')->delete($file->path);
         return response()->json(null, 204);
     }
 }

@@ -24,6 +24,7 @@ class FileFactory extends Factory
         $parent_folder = $this->faker->randomElement([Folder::query()->inRandomOrder()->first(), null]);
         $owner = $parent_folder ? $parent_folder->owner : User::query()->inRandomOrder()->first();
         $path = $parent_folder ? $parent_folder->path . '/' . $parent_folder->name : 'app/public';
+        $space = $parent_folder ? $parent_folder->space : $owner->spaces()->inRandomOrder()->first();
 
         $extension = $this->faker->fileExtension();
         $mimeType = MimeType::fromExtension($extension);
@@ -35,6 +36,7 @@ class FileFactory extends Factory
             'mime_type' => $mimeType,
             'path' => $path,
             'owner_id' => $owner,
+            'space_id' => $space,
             'parent_folder_id' => $parent_folder,
         ];
     }
@@ -42,11 +44,9 @@ class FileFactory extends Factory
     public function configure(): FileFactory
     {
         return $this->afterCreating(function ($file) {
-            $file->tags()->attach(Tag::query()->inRandomOrder()
-                                              ->limit(rand(0, 5))
-                                              ->get(),
-                                              ['created_at' => now(),
-                                               'updated_at' => now()]);
+            $file->tags()->attach(Tag::factory(['name' => $this->faker->word, 'user_id' => $file->owner->id])->count(5)->create(),
+                                  ['created_at' => now(),
+                                   'updated_at' => now()]);
         });
     }
 }
