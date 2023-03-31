@@ -16,11 +16,7 @@ class Folder extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name',
-        'description',
-        'path',
-    ];
+    protected $guarded = [];
 
     // When a folder is updated, update the updated_at timestamp of the parent folder
     protected $touches = [
@@ -32,7 +28,7 @@ class Folder extends Model
     }
 
     public function parentFolder() {
-        return $this->belongsTo(Folder::class, 'folder_id');
+        return $this->belongsTo(Folder::class, 'parent_folder_id');
     }
 
     public function space() {
@@ -48,11 +44,11 @@ class Folder extends Model
     }
 
     public function files() {
-        return $this->hasMany(File::class, 'folder_id');
+        return $this->hasMany(File::class, 'parent_folder_id');
     }
 
     public function folders() {
-        return $this->hasMany(Folder::class, 'folder_id');
+        return $this->hasMany(Folder::class, 'parent_folder_id');
     }
 
     public function tags() {

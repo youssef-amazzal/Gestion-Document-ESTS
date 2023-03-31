@@ -15,13 +15,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 class File extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'name',
-        'description',
-        'size',
-        'mime_type',
-        'path',
-    ];
+    protected $guarded = [];
 
     // When a file is updated, update the updated_at timestamp of the parent folder
     protected $touches = [
@@ -33,7 +27,7 @@ class File extends Model
     }
 
     public function parentFolder() {
-        return $this->belongsTo(Folder::class, 'folder_id');
+        return $this->belongsTo(Folder::class, 'parent_folder_id');
     }
 
     public function space() {

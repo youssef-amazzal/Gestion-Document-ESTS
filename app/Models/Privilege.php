@@ -24,14 +24,7 @@ class Privilege extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'action',
-        'type',
-        'target_id',
-        'grantee_type',
-        'grantee_id',
-        'grantor_id',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'action' => Privileges::class,

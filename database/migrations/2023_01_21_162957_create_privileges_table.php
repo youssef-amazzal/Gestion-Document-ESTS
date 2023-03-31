@@ -28,6 +28,7 @@ return new class extends Migration
             $table->foreignId('grantee_id');
             $table->string('grantee_type');
 
+            $table->unique(['action', 'grantee_id', 'grantee_type', 'target_type', 'target_id']);
 
             $table->timestamps();
         });

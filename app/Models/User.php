@@ -5,8 +5,10 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Roles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -81,8 +83,44 @@ class User extends Authenticatable
         return $this->hasMany(Group::class);
     }
 
-    public function filieres() {
-        return $this->belongsToMany(Filiere::class);
+    public function filieres(): BelongsToMany
+    {
+        return $this->belongsToMany(Filiere::class)->withPivot('year');
+    }
+
+    public function students($promotions): ?\Illuminate\Support\Collection
+    {
+        if ($this->role === Roles::PROFESSOR) {
+            $filieres = $this->filieres->pluck('id');
+            $promotions = empty($promotions) ? $this->filieres->pluck('pivot.year') : $promotions;
+
+            $result = DB::table('users')
+                ->join('filiere_user', 'users.id', '=', 'filiere_user.user_id')
+                ->join('filieres', 'filieres.id', 'filiere_user.filiere_id')
+                ->where('users.role', '=', Roles::STUDENT)
+                ->whereIn('filieres.id', $filieres )
+                ->whereIn('filiere_user.year', $promotions)
+                ->get();
+            return $result;
+        }
+        return null;
+    }
+
+    public function professors($promotions) {
+        if ($this->role === Roles::STUDENT) {
+            $filieres = $this->filieres->pluck('id');
+            $promotions = empty($promotions) ? $this->filieres->pluck('pivot.year') : $promotions;
+
+            $result = DB::table('users')
+                ->join('filiere_user', 'users.id', '=', 'filiere_user.user_id')
+                ->join('filieres', 'filieres.id', 'filiere_user.filiere_id')
+                ->where('users.role', '=', Roles::PROFESSOR)
+                ->whereIn('filieres.id', $filieres )
+                ->whereIn('filiere_user.year', $promotions)
+                ->get();
+            return $result;
+        }
+        return null;
     }
 
 }

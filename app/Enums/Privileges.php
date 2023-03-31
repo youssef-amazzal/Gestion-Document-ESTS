@@ -4,27 +4,24 @@ namespace App\Enums;
 
 enum Privileges : string
 {
-    // File privileges
-    case FileCreate = 'file_create';
-    case FileRead = 'file_read';
-    case FileUpdate = 'file_update';
-    case FileDelete = 'file_delete';
-    case FileShare = 'file_share';
-    case FileDownload = 'file_download';
-    case FileUpload = 'file_upload';
+    /*************************************************************************************************
+     *                                          important
+     *
+     * Space > parent folder > child folder > file
+     * having a privilege on a space or a parent folder means having it on all its children
+     *
+     ************************************************************************************************/
 
     // System privileges
-    case SystemGrant = 'system_grant';
-    case SystemRevoke = 'system_revoke';
-    case SystemCreateUser = 'system_create_user';
-    case SystemEditUser = 'system_edit_user';
-    case SystemDeleteUser = 'system_delete_user';
-    case SystemCreateGroup = 'system_create_group';
-    case SystemDeleteGroup = 'system_delete_group';
-    case SystemAddToGroup = 'system_add_to_group';
-    case SystemRemoveUserFromGroup = 'system_remove_from_group';
-    case SystemBackup = 'system_backup';
-    case SystemRestore = 'system_restore';
+    case manage_users = 'system_manage_users'; // add, edit, delete users
+    case manage_groups = 'system_manage_groups'; // add, edit, delete groups and group members [profs can use it only on their students];
+    case can_upload = 'system_upload'; // those who can't upload are still able to make shortcuts to files
+
+
+    // File privileges
+    case View = 'file_view'; // view space or folder or download file
+    case Upload = 'file_upload'; // upload files to a space or a folder
+    case Edit = 'file_edit'; // fullAccess : upload + delete + move + rename + change permissions + change tags
 
     public static function getType(Privileges|string $privilege): string
     {
@@ -43,7 +40,5 @@ enum Privileges : string
     {
         return array_filter(Privileges::cases(), fn($privilege) => self::getType($privilege) === 'system');
     }
-
-
 
 }
