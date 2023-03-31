@@ -27,12 +27,6 @@ class FileApiController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
-    {
-        $file = File::query()->create($request->all());
-        return response()->json($file, 201);
-    }
-
     public function upload(Request $request): JsonResponse
     {
         $request->validate([
@@ -107,4 +101,6 @@ class FileApiController extends Controller
         Storage::disk('local')->delete($file->path);
         return response()->json(null, 204);
     }
+
+
 }

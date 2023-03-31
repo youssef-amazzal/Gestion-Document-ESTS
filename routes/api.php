@@ -28,15 +28,19 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 // version 1
 Route::prefix('v1')->group(function () {
+    // these routes do not require authentication
+    Route::prefix('auth')->group(function () {
+        Route::post('login', [AuthController::class, 'login']);
+        Route::post('register', [AuthController::class, 'register']);
+    });
 
-    // these routes don't require authentication
-    Route::post('login', [AuthController::class, 'login']);
 
     // these routes require authentication
-    Route::prefix('auth:sanctum')->group(function () {
-        Route::post('register', [AuthController::class, 'register']);
-        Route::post('logout', [AuthController::class, 'logout']);
-        Route::get('user', [AuthController::class, 'user']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::prefix('auth')->group(function () {
+            Route::post('logout', [AuthController::class, 'logout']);
+            Route::get('me', [AuthController::class, 'me']);
+        });
 
         Route::middleware('role.admin')->group(function () {
             Route::prefix('users')->group(function () {
@@ -66,3 +70,4 @@ Route::prefix('v1')->group(function () {
 
     });
 });
+
