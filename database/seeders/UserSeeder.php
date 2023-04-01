@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Privileges;
 use App\Enums\Roles;
 use App\Models\File;
 use App\Models\Filiere;
@@ -19,13 +20,15 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
-        User::query()->create([
+        $admin = User::query()->create([
             'email' => 'admin_ests@um5.ac.ma',
             'password' => bcrypt('admin_ests'),
             'role' => Roles::ADMIN,
             'first_name' => 'Admin',
             'last_name' => 'ESTS',
-        ])->spaces()->createMany(
+        ]);
+
+        $admin->spaces()->createMany(
             [
                 [
                     'name' => 'Espace Personnel',
@@ -37,6 +40,15 @@ class UserSeeder extends Seeder
                 ],
             ]
         );
+
+        foreach (Privileges::getAdminPrivileges() as $privilege) {
+            $admin->privileges()->create([
+                'action' => $privilege,
+                'grantee_id' => $admin->id,
+                'grantee_type' => $admin::class,
+                'type' => Privileges::getType($privilege),
+            ]);
+        }
 
         $stu = User::create([
             'email' => 'youssef_amazzal@um5.ac.ma',

@@ -8,9 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
- * Class File
+ * Class Folder
  * @mixin QueryBuilder
  * @mixin EloquentBuilder
+ * @property Folder $parentFolder
+ * @property Space $space
+ * @property User $owner
+ * @property File $originalFolder
  */
 class Folder extends Model
 {

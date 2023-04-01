@@ -11,11 +11,17 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
  * Class File
  * @mixin QueryBuilder
  * @mixin EloquentBuilder
+ * @property Folder $parentFolder
+ * @property Space $space
+ * @property User $owner
+ * @property File $originalFile
+ *
  */
 class File extends Model
 {
     use HasFactory;
-    protected $guarded = [];
+    protected $guarded = ['path'];
+    protected $hidden = ['path'];
 
     // When a file is updated, update the updated_at timestamp of the parent folder
     protected $touches = [

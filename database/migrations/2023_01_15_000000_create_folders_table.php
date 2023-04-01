@@ -18,13 +18,13 @@ return new class extends Migration
             $table->string              ('name', 100);
             $table->text                ('description')->nullable();
             $table->unsignedBigInteger  ('size')->default(0);
-            $table->string              ('path', 255);
+            $table->boolean             ('is_pinned')->default(false);
 
             $table->foreignId('owner_id')
                   ->constrained('users')
                   ->onDelete('cascade');
 
-            $table->boolean             ('is_shortcut')->default(false);
+            $table->boolean('is_shortcut')->default(false);
             $table->foreignId('original_id')
                   ->nullable()
                   ->constrained('folders')
@@ -40,14 +40,6 @@ return new class extends Migration
                   ->onDelete('cascade');
 
             $table->timestamps();
-        });
-
-        // add a reference to the parent folder
-        Schema::table('folders', function (Blueprint $table) {
-            $table->foreignId('parent_id')
-                  ->nullable()
-                  ->constrained('folders')
-                  ->onDelete('cascade');
         });
     }
 

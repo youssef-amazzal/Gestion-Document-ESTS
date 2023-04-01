@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Enums\Privileges;
+use App\Enums\Roles;
 use App\Models\User;
 use App\Traits\AbilityTrait;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -20,6 +21,11 @@ class UserPolicy
      */
     public function upload(User $user)
     {
-        return $this->can($user, Privileges::can_upload);
+        return $this->can($user, Privileges::Can_Upload);
+    }
+
+    public function isAdmin(User $user)
+    {
+        return $user->role === Roles::ADMIN;
     }
 }

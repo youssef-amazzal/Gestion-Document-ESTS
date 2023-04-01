@@ -18,9 +18,10 @@ return new class extends Migration
             $table->id();
             $table->string              ('name', 100);
             $table->text                ('description')->nullable();
+            $table->boolean             ('is_pinned')->default(false);
             $table->unsignedBigInteger  ('size');
-            $table->string              ('path', 255);
-            $table->string              ('mime_type');
+            $table->string              ('path', 255)->nullable();
+            $table->string              ('mime_type')->nullable();
 
             $table->foreignId('parent_folder_id')
                   ->nullable()

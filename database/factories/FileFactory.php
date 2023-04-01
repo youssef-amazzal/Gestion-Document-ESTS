@@ -6,6 +6,7 @@ use App\Models\File;
 use App\Models\Folder;
 use App\Models\Tag;
 use App\Models\User;
+use App\Traits\PathTrait;
 use GuzzleHttp\Psr7\MimeType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,6 +15,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class FileFactory extends Factory
 {
+    use PathTrait;
     /**
      * Define the model's default state.
      *
@@ -23,7 +25,6 @@ class FileFactory extends Factory
     {
         $parent_folder = $this->faker->randomElement([Folder::query()->inRandomOrder()->first(), null]);
         $owner = $parent_folder ? $parent_folder->owner : User::query()->inRandomOrder()->first();
-        $path = $parent_folder ? $parent_folder->path . '/' . $parent_folder->name : 'app/public';
         $space = $parent_folder ? $parent_folder->space : $owner->spaces()->inRandomOrder()->first();
 
         $extension = $this->faker->fileExtension();
@@ -34,7 +35,6 @@ class FileFactory extends Factory
             'description' => fake()->sentence(),
             'size' => fake()->numberBetween(100, 1000000),
             'mime_type' => $mimeType,
-            'path' => $path,
             'owner_id' => $owner,
             'space_id' => $space,
             'parent_folder_id' => $parent_folder,

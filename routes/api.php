@@ -39,26 +39,24 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('auth')->group(function () {
             Route::post('logout', [AuthController::class, 'logout']);
-            Route::get('me', [AuthController::class, 'me']);
+            Route::get('user', [AuthController::class, 'user']);
         });
 
         Route::middleware('role.admin')->group(function () {
-            Route::prefix('users')->group(function () {
-                Route::get('/', [UserApiController::class, 'index']);
-                Route::post('/', [UserApiController::class, 'store']);
-                Route::post('/{user}', [UserApiController::class, 'update']);
-                Route::delete('/{user}', [UserApiController::class, 'destroy']);
-            });
+            Route::apiResources([
+                'users' => UserApiController::class,
+            ]);
         });
 
         Route::prefix('files')->group(function () {
-            Route::get('/', [FileApiController::class, 'index']);
             Route::post('/upload', [FileApiController::class, 'upload']);
-            Route::get('/{file}', [FileApiController::class, 'show']);
             Route::get('/{file}/download', [FileApiController::class, 'download']);
-            Route::put('/{file}', [FileApiController::class, 'update']);
-            Route::delete('/{file}', [FileApiController::class, 'destroy']);
+            Route::get('/shared', [FileApiController::class, 'getSharedWithMe']);
         });
+
+        Route::apiResources([
+            'files'         => FileApiController::class,
+        ], ['except' => ['index', 'show', 'store']]);
 
         Route::apiResources([
             'folders'       => FolderApiController::class,
@@ -66,7 +64,7 @@ Route::prefix('v1')->group(function () {
             'privileges'    => PrivilegeApiController::class,
             'operations'    => OperationApiController::class,
             'groups'        => GroupApiController::class,
-        ]);
+        ], ['except' => ['index']]);
 
     });
 });

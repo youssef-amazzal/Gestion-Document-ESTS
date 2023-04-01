@@ -21,13 +21,11 @@ class FolderFactory extends Factory
     {
         $parent_folder = $this->faker->randomElement([Folder::query()->inRandomOrder()->first(), null]);
         $owner = $parent_folder && $parent_folder->owner ? $parent_folder->owner : User::query()->inRandomOrder()->first();
-        $path = $parent_folder && $parent_folder->owner ? $parent_folder->path . '/' . $parent_folder->name : 'app/public';
         $space = $parent_folder && $parent_folder->owner ? $parent_folder->space : $owner->spaces()->inRandomOrder()->first();
 
         return [
             'name' => $this->faker->unique()->word,
             'description' => $this->faker->sentence,
-            'path' => $path,
             'owner_id' => $owner,
             'space_id' => $space,
             'parent_folder_id' => $parent_folder,

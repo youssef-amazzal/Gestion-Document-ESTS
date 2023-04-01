@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Models\Filiere;
+use App\Enums\Privileges;
+use App\Enums\Roles;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use OverflowException;
 
 /**
  * @extends Factory<Group>
@@ -22,42 +22,44 @@ class GroupFactory extends Factory
     {
         $groups = [
             'Admins',
-            'Staff',
-            'Teachers',
+            'Professors',
             'Students',
-            'First Year',
-            'Second Year',
-            'Clubs',
-            'Robotic Club',
-            'Art Club',
-            'Public'
         ];
 
-
-        $class = Filiere::query()->inRandomOrder()->first();
-        $class = $class->abbreviation . '-' . $class->promotion;
-
-        try {
-            return [
-                'name' => $this->faker->unique()->randomElement($groups),
-                'user_id' => User::query()->inRandomOrder()->first()->id,
-            ];
-        } catch (OverflowException) {
-            return [
-                'name' => $class,
-                'user_id' => User::query()->inRandomOrder()->first()->id,
-            ];
-        }
+        return [
+            'name' => $this->faker->unique()->randomElement($groups),
+            'user_id' => User::find(1),
+        ];
     }
 
     public function configure(): GroupFactory
     {
         return $this->afterCreating(function ($group) {
-            $group->memebers()->attach(User::query()->inRandomOrder()
-                                                    ->limit(5)
-                                                    ->get(),
-                                                    ['created_at' => now(),
-                                                     'updated_at' => now()]);
+            if ($group->name === 'Professors') {
+                $group->users()->attach(User::query()->where('role', Roles::PROFESSOR)->get());
+
+                foreach (Privileges::getProfessorsPrivileges() as $privilege) {
+                    $group->privileges()->create([
+                        'action' => $privilege,
+                        'grantee_id' => $group->id,
+                        'grantee_type' => Group::class,
+                        'type' => Privileges::getType($privilege),
+                    ]);
+                }
+
+            }
+            elseif ($group->name === 'Students') {
+                $group->users()->attach(User::query()->where('role', Roles::STUDENT)->get());
+
+                foreach (Privileges::getStudentsPrivileges() as $privilege) {
+                    $group->privileges()->create([
+                        'action' => $privilege,
+                        'grantee_id' => $group->id,
+                        'grantee_type' => Group::class,
+                        'type' => Privileges::getType($privilege),
+                    ]);
+                }
+            }
         });
     }
 }

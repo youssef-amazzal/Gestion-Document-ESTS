@@ -15,7 +15,7 @@ class GroupSeeder extends Seeder
     public function run()
     {
         Group::factory()
-            ->count(10)
+            ->count(3)
             ->create();
     }
 }

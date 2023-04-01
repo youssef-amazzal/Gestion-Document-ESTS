@@ -14,13 +14,13 @@ enum Privileges : string
 
     // System privileges
     case manage_users = 'system_manage_users'; // add, edit, delete users
-    case manage_groups = 'system_manage_groups'; // add, edit, delete groups and group members [profs can use it only on their students];
-    case can_upload = 'system_upload'; // those who can't upload are still able to make shortcuts to files
+    case manage_groups = 'system_manage_groups'; // add, edit, delete groups and group members [only owned groups];
+    case Can_Upload = 'system_upload'; // those who can't upload are still able to make shortcuts to files
 
 
     // File privileges
     case View = 'file_view'; // view space or folder or download file
-    case Upload = 'file_upload'; // upload files to a space or a folder
+    case Upload_Into = 'file_upload_into'; // create folders or upload files into space or folder
     case Edit = 'file_edit'; // fullAccess : upload + delete + move + rename + change permissions + change tags
 
     public static function getType(Privileges|string $privilege): string
@@ -41,4 +41,21 @@ enum Privileges : string
         return array_filter(Privileges::cases(), fn($privilege) => self::getType($privilege) === 'system');
     }
 
+    public static function getAdminPrivileges(): array
+    {
+        return array_filter(Privileges::cases(), fn($privilege) => self::getType($privilege) === 'system');
+    }
+
+    public static function getProfessorsPrivileges(): array
+    {
+        return [
+            Privileges::manage_groups,
+            Privileges::Can_Upload,
+        ];
+    }
+
+    public static function getStudentsPrivileges(): array
+    {
+        return [];
+    }
 }

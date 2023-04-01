@@ -14,8 +14,12 @@ trait AccessTrait {
 
     public function view(User $user, File|Folder|Space $target): bool
     {
-        // if this is true, then the other two will not be checked
-        $isSharedWithUser = $this->can($user, Privileges::View, $target);
+        $isSharedWithUser = false;
+
+        if (!$target instanceof Space) {
+            // if this is true, then the other two will not be checked, since the space is the highest level
+            $isSharedWithUser = $this->can($user, Privileges::View, $target->space);
+        }
 
         $isSharedWithUser = $isSharedWithUser || $this->can($user, Privileges::View, $target);
 
@@ -28,8 +32,12 @@ trait AccessTrait {
 
     public function edit(User $user, File|Folder|Space $target): bool
     {
-        // if this is true, then the other two will not be checked
-        $hasFullAccess = $this->can($user, Privileges::Edit, $target);
+        $hasFullAccess = false;
+
+        if (!$target instanceof Space) {
+            // if this is true, then the other two will not be checked, since the space is the highest level
+            $hasFullAccess = $this->can($user, Privileges::Edit, $target->space);
+        }
 
         $hasFullAccess = $hasFullAccess || $this->can($user, Privileges::Edit, $target);
 
@@ -40,15 +48,18 @@ trait AccessTrait {
         return $hasFullAccess;
     }
 
-    public function upload(User $user, File|Folder|Space $target): bool
+    public function uploadInto(User $user, Folder|Space $target): bool
     {
-        // if this is true, then the other two will not be checked
-        $canUploadInto = $this->can($user, Privileges::Upload, $target);
+        $canUploadInto = false;
+        if (!$target instanceof Space) {
+            // if this is true, then the other two will not be checked, since the space is the highest level
+            $canUploadInto = $this->can($user, Privileges::Upload_Into, $target->space);
+        }
 
-        $canUploadInto = $canUploadInto || $this->can($user, Privileges::Upload, $target);
+        $canUploadInto = $canUploadInto || $this->can($user, Privileges::Upload_Into, $target);
 
         if ($target->parentFolder !== null) {
-            $canUploadInto = $canUploadInto || $user->can('upload', $target->parentFolder);
+            $canUploadInto = $canUploadInto || $user->can('uploadInto', $target->parentFolder);
         }
 
         return $canUploadInto;
