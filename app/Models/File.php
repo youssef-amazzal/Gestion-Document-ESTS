@@ -62,11 +62,11 @@ use Illuminate\Support\Facades\Storage;
 class File extends Model
 {
     use HasFactory;
-    protected $guarded = ['path'];
-    protected $hidden = ['path'];
+    protected $guarded = [];
+    protected $hidden = ['path', 'parentFolder', 'ancestors'];
 
-    // When a file is updated, update the updated_at timestamp of the parent folder
-    protected $touches = ['parentFolder',];
+    // When a file is updated, update the updated_at timestamp of the ancestors folders
+    protected $touches = ['ancestors'];
 
     protected static function booted(): void
     {

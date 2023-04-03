@@ -18,6 +18,7 @@ return new class extends Migration
             $table->id();
             $table->string              ('name', 100);
             $table->text                ('description')->nullable();
+            $table->string                ('type')->default('file');
             $table->boolean             ('is_pinned')->default(false);
             $table->unsignedBigInteger  ('size');
             $table->string              ('path', 255)->nullable();

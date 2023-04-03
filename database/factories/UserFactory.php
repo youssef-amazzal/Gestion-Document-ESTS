@@ -41,11 +41,6 @@ class UserFactory extends Factory
             else if ($user->role === Roles::PROFESSOR) {
                 $user->filieres()->attach(Filiere::query()->inRandomOrder()->take(rand(1, 3))->get(), ['year' => now()->year]);
             }
-
-            $user->spaces()->create(['name' => 'Espace personnel', 'is_permanent' => true]);
-            if ($user->role === Roles::PROFESSOR) {
-                $user->spaces()->create(['name' => 'Espace de cours']);
-            }
         });
     }
 }

@@ -66,6 +66,13 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected static function booted()
+    {
+        static::created(function (User $user) {
+            $user->spaces()->create(['name' => 'Espace personnel', 'is_permanent' => true]);
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Privileges;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,22 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 class Group extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        static::created(function (Group $group) {
+            if ($group->name === 'Professors') {
+                foreach (Privileges::getProfessorsPrivileges() as $privilege) {
+                    $group->privileges()->create([
+                        'action' => $privilege,
+                        'grantee_id' => $group->id,
+                        'grantee_type' => Group::class,
+                        'type' => Privileges::getType($privilege),
+                    ]);
+                }
+            }
+        });
+    }
 
     protected $guarded = [];
 

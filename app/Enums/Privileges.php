@@ -20,8 +20,8 @@ enum Privileges : string
 
     // File privileges
     case View = 'file_view'; // view space or folder or download file
-    case Upload_Into = 'file_upload_into'; // create folders or upload files into space or folder
-    case Edit = 'file_edit'; // fullAccess : upload + delete + move + rename + change permissions + change tags
+    case Upload_Into = 'file_upload_into'; // view + create folders or upload files into space or folder
+    case Edit = 'file_edit'; // fullAccess : view + upload + delete + move + rename + change permissions + change tags
 
     public static function getType(Privileges|string $privilege): string
     {

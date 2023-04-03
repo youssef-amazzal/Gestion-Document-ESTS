@@ -68,9 +68,10 @@ class Folder extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $hidden = ['parentFolder', 'ancestors'];
 
     // When a folder is updated, update the updated_at timestamp of the parent folder
-    protected $touches = ['parentFolder',];
+    protected $touches = ['ancestors'];
 
     protected static function booted(): void
     {

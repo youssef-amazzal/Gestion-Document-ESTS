@@ -37,28 +37,9 @@ class GroupFactory extends Factory
         return $this->afterCreating(function ($group) {
             if ($group->name === 'Professors') {
                 $group->users()->attach(User::query()->where('role', Roles::PROFESSOR)->get());
-
-                foreach (Privileges::getProfessorsPrivileges() as $privilege) {
-                    $group->privileges()->create([
-                        'action' => $privilege,
-                        'grantee_id' => $group->id,
-                        'grantee_type' => Group::class,
-                        'type' => Privileges::getType($privilege),
-                    ]);
-                }
-
             }
             elseif ($group->name === 'Students') {
                 $group->users()->attach(User::query()->where('role', Roles::STUDENT)->get());
-
-                foreach (Privileges::getStudentsPrivileges() as $privilege) {
-                    $group->privileges()->create([
-                        'action' => $privilege,
-                        'grantee_id' => $group->id,
-                        'grantee_type' => Group::class,
-                        'type' => Privileges::getType($privilege),
-                    ]);
-                }
             }
         });
     }
