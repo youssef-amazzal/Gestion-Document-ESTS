@@ -35,6 +35,18 @@ class Folder extends Model
         return $this->belongsTo(Folder::class, 'parent_folder_id');
     }
 
+    public function ancestors() {
+        return $this->morphToMany(Folder::class, 'containable');
+    }
+
+    public function descendantsFolders() {
+        return $this->morphedByMany(Folder::class, 'containable');
+    }
+
+    public function descendantsFiles() {
+        return $this->morphedByMany(File::class, 'containable');
+    }
+
     public function space() {
         return $this->belongsTo(Space::class, 'space_id');
     }
