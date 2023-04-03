@@ -4,10 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Space extends Model
 {
     use HasFactory;
+
+    protected static function booted()
+    {
+        self::deleting(function (Space $space) {
+            $descendants = $space->files()->get()->pluck('path')->toArray();
+            Storage::disk('local')->delete($descendants);
+        });
+    }
 
     protected $fillable = [
         'name',

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Folder
@@ -23,9 +24,34 @@ class Folder extends Model
     protected $guarded = [];
 
     // When a folder is updated, update the updated_at timestamp of the parent folder
-    protected $touches = [
-        'parentFolder',
-    ];
+    protected $touches = ['parentFolder',];
+
+    protected static function booted(): void
+    {
+        static::created(function (Folder $folder) {
+            if ($folder->parentFolder) {
+                $ancestors = $folder->parentFolder->ancestors()->get();
+                $ancestors->push($folder->parentFolder);
+                $folder->ancestors()->attach($ancestors);
+            }
+        });
+
+        static::updated(function (Folder $folder) {
+            if ($folder->isDirty('parent_folder_id')) {
+                $folder->ancestors()->detach();
+                if ($folder->parentFolder) {
+                    $ancestors = $folder->parentFolder->ancestors()->get();
+                    $ancestors->push($folder->parentFolder);
+                    $folder->ancestors()->attach($ancestors);
+                }
+            }
+        });
+
+        static::deleting(function (Folder $folder) {
+            $descendants = $folder->descendantsFiles()->get()->pluck('path')->toArray();
+            Storage::disk('local')->delete($descendants);
+        });
+    }
 
     public function owner() {
         return $this->belongsTo(User::class, 'owner_id');

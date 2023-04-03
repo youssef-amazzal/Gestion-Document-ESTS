@@ -55,6 +55,9 @@ class FileApiController extends Controller
         // check if the user has the right to upload the file either in the space or in the folder
         $parentFolder = Folder::query()->find($request['parent_folder_id']);
         if ($parentFolder) {
+
+            $request['space_id'] = $parentFolder->space_id; //just in case the space_id is wrong
+
             if ($user->cannot('uploadInto', $parentFolder)) {
                 return response()->json([
                     'message' => 'You do not have the right to upload files in this folder.',
@@ -74,7 +77,7 @@ class FileApiController extends Controller
         $binaryFile = $request->file('file');
 
         $file = File::make([
-            'name'              => $binaryFile->getClientOriginalName(),
+            'name'              => pathinfo($binaryFile->getClientOriginalName(), PATHINFO_FILENAME), // get the filename without the extension
             'parent_folder_id'  => $request['parent_folder_id'],
             'space_id'          => $request['space_id'],
             'owner_id'          => $user->id,
@@ -82,7 +85,7 @@ class FileApiController extends Controller
             'size'              => $binaryFile->getSize(),
         ]);
 
-        $file->path = $binaryFile->storeAs($this->pathFromTarget($file), $file->name, 'local');
+        $file->path = $binaryFile->store($this->pathFromTarget($file));
         $file->save();
 
         return response()->json($file, Response::HTTP_CREATED);
