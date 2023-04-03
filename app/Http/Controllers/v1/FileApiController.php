@@ -53,17 +53,20 @@ class FileApiController extends Controller
         ]);
 
         // check if the user has the right to upload the file either in the space or in the folder
-        if (isset($request['parent_folder_id'])) {
-            $parentFolder = Folder::query()->find($request['parent_folder_id']);
-
+        $parentFolder = Folder::query()->find($request['parent_folder_id']);
+        if ($parentFolder) {
             if ($user->cannot('uploadInto', $parentFolder)) {
-                return response()->json(['message' => 'You do not have the right to upload files in this folder.'], Response::HTTP_FORBIDDEN);
+                return response()->json([
+                    'message' => 'You do not have the right to upload files in this folder.',
+                ], Response::HTTP_FORBIDDEN);
             }
         } else {
             $space = Space::query()->find($request['space_id']);
 
             if ($user->cannot('uploadInto', $space)) {
-                return response()->json(['message' => 'You do not have the right to upload files in this space.'], Response::HTTP_FORBIDDEN);
+                return response()->json([
+                    'message' => 'You do not have the right to upload files in this space.',
+                    ], Response::HTTP_FORBIDDEN);
             }
         }
 

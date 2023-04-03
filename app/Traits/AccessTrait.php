@@ -14,12 +14,8 @@ trait AccessTrait {
 
     public function view(User $user, File|Folder|Space $target): bool
     {
-        $isSharedWithUser = false;
-
-        if (!$target instanceof Space) {
-            // if this is true, then the other two will not be checked, since the space is the highest level
-            $isSharedWithUser = $this->can($user, Privileges::View, $target->space);
-        }
+        // if this is true, then the other two will not be checked, since the space is the highest level
+        $isSharedWithUser = $this->can($user, Privileges::View, $target->space);
 
         $isSharedWithUser = $isSharedWithUser || $this->can($user, Privileges::View, $target);
 
@@ -32,12 +28,8 @@ trait AccessTrait {
 
     public function edit(User $user, File|Folder|Space $target): bool
     {
-        $hasFullAccess = false;
-
-        if (!$target instanceof Space) {
-            // if this is true, then the other two will not be checked, since the space is the highest level
-            $hasFullAccess = $this->can($user, Privileges::Edit, $target->space);
-        }
+        // if this is true, then the other two will not be checked, since the space is the highest level
+        $hasFullAccess = $this->can($user, Privileges::Edit, $target->space);
 
         $hasFullAccess = $hasFullAccess || $this->can($user, Privileges::Edit, $target);
 
@@ -50,11 +42,8 @@ trait AccessTrait {
 
     public function uploadInto(User $user, Folder|Space $target): bool
     {
-        $canUploadInto = false;
-        if (!$target instanceof Space) {
-            // if this is true, then the other two will not be checked, since the space is the highest level
-            $canUploadInto = $this->can($user, Privileges::Upload_Into, $target->space);
-        }
+        // if this is true, then the other two will not be checked, since the space is the highest level
+        $canUploadInto = $this->can($user, Privileges::Upload_Into, $target->space);
 
         $canUploadInto = $canUploadInto || $this->can($user, Privileges::Upload_Into, $target);
 
