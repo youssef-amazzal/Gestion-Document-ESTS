@@ -12,8 +12,29 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
  * Class File
+ *
  * @mixin QueryBuilder
  * @mixin EloquentBuilder
+ * @property int $id
+ * @property string $name
+ * @property int $user_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User $owner
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Privilege> $privileges
+ * @property-read int|null $privileges_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $users
+ * @property-read int|null $users_count
+ * @method static \Database\Factories\GroupFactory factory($count = null, $state = [])
+ * @method static EloquentBuilder|Group newModelQuery()
+ * @method static EloquentBuilder|Group newQuery()
+ * @method static EloquentBuilder|Group query()
+ * @method static EloquentBuilder|Group whereCreatedAt($value)
+ * @method static EloquentBuilder|Group whereId($value)
+ * @method static EloquentBuilder|Group whereName($value)
+ * @method static EloquentBuilder|Group whereUpdatedAt($value)
+ * @method static EloquentBuilder|Group whereUserId($value)
+ * @mixin \Eloquent
  */
 class Group extends Model
 {

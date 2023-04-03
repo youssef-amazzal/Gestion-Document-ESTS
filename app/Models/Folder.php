@@ -10,12 +10,58 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class Folder
+ *
  * @mixin QueryBuilder
  * @mixin EloquentBuilder
  * @property Folder $parentFolder
  * @property Space $space
  * @property User $owner
  * @property File $originalFolder
+ * @property int $id
+ * @property string $name
+ * @property string|null $description
+ * @property int $size
+ * @property int $is_pinned
+ * @property int $owner_id
+ * @property int $is_shortcut
+ * @property int|null $original_id
+ * @property int|null $parent_folder_id
+ * @property int $space_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Folder> $ancestors
+ * @property-read int|null $ancestors_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $descendantsFiles
+ * @property-read int|null $descendants_files_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Folder> $descendantsFolders
+ * @property-read int|null $descendants_folders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
+ * @property-read int|null $files_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Folder> $folders
+ * @property-read int|null $folders_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Operation> $operations
+ * @property-read int|null $operations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Privilege> $privileges
+ * @property-read int|null $privileges_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tag> $tags
+ * @property-read int|null $tags_count
+ * @method static \Database\Factories\FolderFactory factory($count = null, $state = [])
+ * @method static EloquentBuilder|Folder newModelQuery()
+ * @method static EloquentBuilder|Folder newQuery()
+ * @method static EloquentBuilder|Folder query()
+ * @method static EloquentBuilder|Folder whereCreatedAt($value)
+ * @method static EloquentBuilder|Folder whereDescription($value)
+ * @method static EloquentBuilder|Folder whereId($value)
+ * @method static EloquentBuilder|Folder whereIsPinned($value)
+ * @method static EloquentBuilder|Folder whereIsShortcut($value)
+ * @method static EloquentBuilder|Folder whereName($value)
+ * @method static EloquentBuilder|Folder whereOriginalId($value)
+ * @method static EloquentBuilder|Folder whereOwnerId($value)
+ * @method static EloquentBuilder|Folder whereParentFolderId($value)
+ * @method static EloquentBuilder|Folder whereSize($value)
+ * @method static EloquentBuilder|Folder whereSpaceId($value)
+ * @method static EloquentBuilder|Folder whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class Folder extends Model
 {
