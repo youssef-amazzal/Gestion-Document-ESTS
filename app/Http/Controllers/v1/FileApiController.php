@@ -99,7 +99,7 @@ class FileApiController extends Controller
         $filePath = storage_path('app\\' . $file->path);
 
         return response()->download($filePath, $file->name, [
-            'Content-Type' => $file->mime_type,
+            'mime_type' => $file->mime_type,
         ]);
     }
 
@@ -152,27 +152,87 @@ class FileApiController extends Controller
         return response()->json(null, 204);
     }
 
-    public function getSharedWithMe(Request $request)
+    public function getSharedWithMe(Request $request): JsonResponse
     {
+        /*
+         * the files that are considered being shared with the user are those on where he or his group
+         * have the right to view the file (direct) or the right to view an ancestor folder o space
+         */
+        
         $user = $request->user();
+        $groups = $user->groups->pluck('id');
 
-        $sharedWithUser = File::query()->whereHas('privileges', function ($query) use ($user) {
-                                $query->where('grantee_id', $user->id)
-                                      ->where('grantee_type', User::class)
-                                      ->where('action', Privileges::View);
-                         });
+        // user has direct privileges on those files
+        $direct_shared_files =
+            File::query()->select(['files.*', 'privileges.updated_at as shared_at'])
+            ->join('privileges', function ($join) use ($groups, $user) {
+                $join->on('privileges.target_id', '=', 'files.id')
 
-        $sharedWithGroup = File::query()->whereHas('privileges', function ($query) use ($user) {
-                                $query->whereIn('grantee_id', $user->groups->pluck('id'))
-                                      ->where('grantee_type', Group::class)
-                                      ->where('action', Privileges::View);
-                         });
+                    ->where('privileges.target_type', '=', File::class)
+
+                    ->where(function ($query) use ($groups, $user) {
+
+                        $query->where(function ($query) use ($user) {
+                                $query->where('privileges.grantee_id', '=', $user->id)
+                                    ->where('privileges.grantee_type', '=', User::class);
+                        })
+                              ->orWhere(function ($query) use ($groups) {
+                                $query->whereIn('privileges.grantee_id', $groups)
+                                    ->where('privileges.grantee_type', '=', Group::class);
+                        });
+                    });
+            })->orderBy('shared_at', 'desc');
+
+        // user has privileges on ancestor folders of those files
+        $indirect_shared_files =
+            File::query()->select(['files.*', 'privileges.updated_at as shared_at'])
+            ->join('containables', function ($join) {
+                $join->on('containables.containable_id', '=', 'files.id')
+                    ->where('containables.containable_type', '=', File::class);
+            })
+            ->join('folders', 'folders.id', '=', 'containables.folder_id')
+            ->join('privileges', function ($join) use ($groups, $user) {
+                $join->on('privileges.target_id', '=', 'folders.id')
+                    ->where('privileges.target_type', '=', Folder::class)
+                    ->where(function ($query) use ($groups, $user) {
+
+                        $query->where(function ($query) use ($user) {
+                                $query->where('privileges.grantee_id', '=', $user->id)
+                                    ->where('privileges.grantee_type', '=', User::class);
+                        })
+                              ->orWhere(function ($query) use ($groups) {
+                                $query->whereIn('privileges.grantee_id', $groups)
+                                    ->where('privileges.grantee_type', '=', Group::class);
+                        });
+                    });
+            });
+
+        // user has privileges on the parent space of those files
+        $indirect_shared_files = $indirect_shared_files->union(
+            File::query()->select(['files.*', 'privileges.updated_at as shared_at'])
+            ->join('spaces', 'spaces.id', '=', 'files.space_id')
+            ->join('privileges', function ($join) use ($groups, $user) {
+                $join->on('privileges.target_id', '=', 'spaces.id')
+                    ->where('privileges.target_type', '=', Space::class)
+                    ->where(function ($query) use ($groups, $user) {
+
+                        $query->where(function ($query) use ($user) {
+                                $query->where('privileges.grantee_id', '=', $user->id)
+                                    ->where('privileges.grantee_type', '=', User::class);
+                        })
+                              ->orWhere(function ($query) use ($groups) {
+                                $query->whereIn('privileges.grantee_id', $groups)
+                                    ->where('privileges.grantee_type', '=', Group::class);
+                        });
+                    });
+            }));
 
         return response()
-            ->json($sharedWithUser
-            ->union($sharedWithGroup)
-            ->with(['parentFolder', 'space', 'owner'])
-            ->get());
+            ->json($direct_shared_files
+            ->union($indirect_shared_files)
+            ->orderBy('shared_at', 'desc')
+            ->limit($request->limit)
+            ->with('owner')->get());
     }
 
 }

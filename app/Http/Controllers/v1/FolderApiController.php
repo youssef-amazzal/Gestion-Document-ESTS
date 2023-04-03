@@ -110,4 +110,18 @@ class FolderApiController extends Controller
         $folder->delete();
         return response()->json(null, 204);
     }
+
+    public function getContent(Request $request, Folder $folder): JsonResponse
+    {
+        if ($request->user()->cannot('view', $folder)) {
+            return response()->json(['message' => 'You do not have the right to view this folder.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $files = $folder->files()->get();
+        $folders = $folder->folders()->get();
+
+        $merged = $files->merge($folders);
+
+        return response()->json($merged);
+    }
 }

@@ -97,4 +97,23 @@ class SpaceApiController extends Controller
 
         return response()->json(null, Response::HTTP_NO_CONTENT);
     }
+
+    public function getPersonalSpaces(Request $request): JsonResponse
+    {
+        return response()->json($request->user()->spaces);
+    }
+
+    public function getContent(Request $request, Space $space): JsonResponse
+    {
+        if ($request->user()->cannot('view', $space)) {
+            return response()->json(['message' => 'You do not have the right to view this space.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $files = $space->files()->doesntHave('parentFolder')->get();
+        $folders = $space->folders()->doesntHave('parentFolder')->get();
+
+        $merged = $files->merge($folders);
+
+        return response()->json($merged);
+    }
 }

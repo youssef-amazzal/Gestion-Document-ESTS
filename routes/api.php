@@ -6,6 +6,7 @@ use App\Http\Controllers\v1\FolderApiController;
 use App\Http\Controllers\v1\GroupApiController;
 use App\Http\Controllers\v1\OperationApiController;
 use App\Http\Controllers\v1\PrivilegeApiController;
+use App\Http\Controllers\v1\SpaceApiController;
 use App\Http\Controllers\v1\TagApiController;
 use App\Http\Controllers\v1\UserApiController;
 use Illuminate\Http\Request;
@@ -52,6 +53,15 @@ Route::prefix('v1')->group(function () {
             Route::post('/upload', [FileApiController::class, 'upload']);
             Route::get('/{file}/download', [FileApiController::class, 'download']);
             Route::get('/shared', [FileApiController::class, 'getSharedWithMe']);
+        });
+
+        Route::prefix('spaces')->group(function () {
+            Route::get('/personal', [SpaceApiController::class, 'getPersonalSpaces']);
+            Route::get('/{space}/content', [SpaceApiController::class, 'getContent']);
+        });
+
+        Route::prefix('folders')->group(function () {
+            Route::get('/{folder}/content', [FolderApiController::class, 'getContent']);
         });
 
         Route::apiResources([
