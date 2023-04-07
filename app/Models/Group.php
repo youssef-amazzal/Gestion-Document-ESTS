@@ -59,6 +59,11 @@ class Group extends Model
 
     protected $guarded = [];
 
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
@@ -69,8 +74,20 @@ class Group extends Model
         return $this->morphMany(Privilege::class, 'grantee');
     }
 
-    public function owner(): BelongsTo
+    public function filePrivileges()
     {
-        return $this->belongsTo(User::class, 'owner_id');
+        return $this->privileges()->select('target_id')->where('target_type', File::class)->distinct();
     }
+
+    public function folderPrivileges()
+    {
+        return $this->privileges()->select('target_id')->where('target_type', Folder::class)->distinct();
+    }
+
+    public function spacePrivileges()
+    {
+        return $this->privileges()->select('target_id')->where('target_type', Space::class)->distinct();
+    }
+
+
 }

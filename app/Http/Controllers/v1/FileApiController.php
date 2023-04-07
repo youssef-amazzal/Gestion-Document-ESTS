@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\v1;
 
-use App\Enums\Privileges;
 use App\Http\Controllers\Controller;
 use App\Models\File;
 use App\Models\Folder;
@@ -99,7 +98,8 @@ class FileApiController extends Controller
         $filePath = storage_path('app\\' . $file->path);
 
         return response()->download($filePath, $file->name, [
-            'mime_type' => $file->mime_type,
+            'file-name' => $file->name,
+            'Content-Type' => $file->mime_type,
         ]);
     }
 
@@ -158,7 +158,7 @@ class FileApiController extends Controller
          * the files that are considered being shared with the user are those on where he or his group
          * have the right to view the file (direct) or the right to view an ancestor folder o space
          */
-        
+
         $user = $request->user();
         $groups = $user->groups->pluck('id');
 
@@ -181,7 +181,7 @@ class FileApiController extends Controller
                                     ->where('privileges.grantee_type', '=', Group::class);
                         });
                     });
-            })->orderBy('shared_at', 'desc');
+            });
 
         // user has privileges on ancestor folders of those files
         $indirect_shared_files =
@@ -230,7 +230,7 @@ class FileApiController extends Controller
         return response()
             ->json($direct_shared_files
             ->union($indirect_shared_files)
-            ->orderBy('shared_at', 'desc')
+            ->orderBy('created_at', 'desc')
             ->limit($request->limit)
             ->with('owner')->get());
     }

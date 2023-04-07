@@ -69,4 +69,15 @@ class GroupApiController extends Controller
         $group->delete();
         return response()->json(null, 204);
     }
+
+    public function getOwnedGroups(Request $request): JsonResponse
+    {
+        $owner = $request->user();
+        $groups = Group::query()
+            ->where('user_id', $owner->id)
+            ->withCount(['filePrivileges', 'folderPrivileges', 'spacePrivileges'])
+            ->with('users');
+
+        return response()->json($groups->get());
+    }
 }

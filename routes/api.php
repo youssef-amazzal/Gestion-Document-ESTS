@@ -43,11 +43,18 @@ Route::prefix('v1')->group(function () {
             Route::get('user', [AuthController::class, 'user']);
         });
 
+
+        // don't know why, but this route can't be found if it's under apiResources
+        Route::prefix('users')->group(function () {
+            Route::get('students', [UserApiController::class, 'getStudents']);
+        });
+
         Route::middleware('role.admin')->group(function () {
             Route::apiResources([
                 'users' => UserApiController::class,
             ]);
         });
+
 
         Route::prefix('files')->group(function () {
             Route::post('/upload', [FileApiController::class, 'upload']);
@@ -62,6 +69,10 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('folders')->group(function () {
             Route::get('/{folder}/content', [FolderApiController::class, 'getContent']);
+        });
+
+        Route::prefix('groups')->group(function () {
+            Route::get('/owned', [GroupApiController::class, 'getOwnedGroups']);
         });
 
         Route::apiResources([

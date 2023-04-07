@@ -31,10 +31,6 @@ class UserSeeder extends Seeder
         $admin->spaces()->createMany(
             [
                 [
-                    'name' => 'Espace Personnel',
-                    'is_permanent' => true,
-                ],
-                [
                     'name' => 'Public',
                     'is_permanent' => true,
                 ],
@@ -57,7 +53,6 @@ class UserSeeder extends Seeder
             'password' => Hash::make('youssef123'),
             'role' => Roles::STUDENT,
         ]);
-        $stu->spaces()->create(['name' => 'Espace Personnel', 'is_permanent' => true,]);
         $stu->filieres()->attach(Filiere::query()->where('abbreviation', '=', 'GL')->first(), ['year' => now()->year]);
 
         $prof = User::create([
@@ -69,7 +64,6 @@ class UserSeeder extends Seeder
         ]);
 
         $prof->filieres()->attach(Filiere::query()->where('abbreviation', '=', 'GL')->first(), ['year' => now()->year]);
-        $prof->spaces()->create(['name' => 'Espace Personnel', 'is_permanent' => true]);
         $prof->spaces()->create(['name' => 'Java Avanée']);
 
         foreach ($prof->spaces() as $space) {

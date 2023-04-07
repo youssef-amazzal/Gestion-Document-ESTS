@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Roles;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,7 +25,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $avatar
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Group> $createdGroups
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Group> $ownedGroups
  * @property-read int|null $created_groups_count
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\File> $files
  * @property-read int|null $files_count
@@ -137,7 +138,7 @@ class User extends Authenticatable
         return $this->morphMany(Privilege::class, 'grantee');
     }
 
-    public function createdGroups() {
+    public function ownedGroups() {
         return $this->hasMany(Group::class);
     }
 
@@ -146,37 +147,34 @@ class User extends Authenticatable
         return $this->belongsToMany(Filiere::class)->withPivot('year');
     }
 
-    public function students($promotions): ?\Illuminate\Support\Collection
+    public function students($promotions = [])
     {
         if ($this->role === Roles::PROFESSOR) {
             $filieres = $this->filieres->pluck('id');
             $promotions = empty($promotions) ? $this->filieres->pluck('pivot.year') : $promotions;
 
-            $result = DB::table('users')
+            return User::query()
+                ->select(['users.*', 'filieres.name as filiere_name', 'filiere_user.year as promotion', 'filieres.id as filiere_id'])
                 ->join('filiere_user', 'users.id', '=', 'filiere_user.user_id')
                 ->join('filieres', 'filieres.id', 'filiere_user.filiere_id')
                 ->where('users.role', '=', Roles::STUDENT)
                 ->whereIn('filieres.id', $filieres )
-                ->whereIn('filiere_user.year', $promotions)
-                ->get();
-            return $result;
+                ->whereIn('filiere_user.year', $promotions); // looks like laravel ignores the whereIn when the array is null or empty
         }
-        return null;
+        return User::query()->where('id', '=', -1);
     }
 
-    public function professors($promotions) {
+    public function professors($promotions = null) {
         if ($this->role === Roles::STUDENT) {
             $filieres = $this->filieres->pluck('id');
             $promotions = empty($promotions) ? $this->filieres->pluck('pivot.year') : $promotions;
 
-            $result = DB::table('users')
-                ->join('filiere_user', 'users.id', '=', 'filiere_user.user_id')
+            return User::query()
+                ->select(['users.*', 'filieres.name as filiere_name', 'filiere_user.year as promotion', 'filieres.id as filiere_id'])
                 ->join('filieres', 'filieres.id', 'filiere_user.filiere_id')
                 ->where('users.role', '=', Roles::PROFESSOR)
                 ->whereIn('filieres.id', $filieres )
-                ->whereIn('filiere_user.year', $promotions)
-                ->get();
-            return $result;
+                ->whereIn('filiere_user.year', $promotions);
         }
         return null;
     }

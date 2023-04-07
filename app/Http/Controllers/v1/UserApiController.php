@@ -71,4 +71,10 @@ class UserApiController extends Controller
         $user->delete();
         return response()->json(null, 204);
     }
+
+    public function getStudents(Request $request): JsonResponse
+    {
+        $students = $request->user()->students()->get();
+        return response()->json($students);
+    }
 }

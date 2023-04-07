@@ -57,7 +57,8 @@ class FolderApiController extends Controller
             'space_id' => $request['space_id'],
             'owner_id' => $user->id,
             'is_shortcut' => $request['is_shortcut'] ?? false,
-            'shortcut_target_id' => $request['shortcut_target_id'] ?? null,
+            'original_id' => $request['original_id'] ?? null,
+			'size' => 0,
         ]);
 
         return response()->json($folder, Response::HTTP_CREATED);
