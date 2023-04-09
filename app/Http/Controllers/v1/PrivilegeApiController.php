@@ -98,4 +98,6 @@ class PrivilegeApiController extends Controller
         $privilege->delete();
         return response()->json(null, 204);
     }
+
+
 }

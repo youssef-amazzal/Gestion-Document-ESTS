@@ -71,6 +71,15 @@ class User extends Authenticatable
     {
         static::created(function (User $user) {
             $user->spaces()->create(['name' => 'Espace personnel', 'is_permanent' => true]);
+
+            if ($user->role === Roles::PROFESSOR) {
+                $filieres = $user->filieres;
+                $filieres->each(function (Filiere $filiere) use ($user) {
+                    $group = $user->ownedGroups()->create(['name' => $filiere->name, 'user_id' => $user->id]);
+                    $students = $filiere->students()->get();
+                    $group->users()->attach($students);
+                });
+            }
         });
     }
 

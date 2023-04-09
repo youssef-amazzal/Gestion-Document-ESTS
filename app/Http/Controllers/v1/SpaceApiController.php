@@ -4,12 +4,14 @@ namespace App\Http\Controllers\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Space;
+use App\Traits\ShareTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class SpaceApiController extends Controller
 {
+    use ShareTrait;
     /**
      * Display a listing of the resource.
      *
@@ -89,7 +91,7 @@ class SpaceApiController extends Controller
      */
     public function destroy(Request $request, Space $space)
     {
-        if ($request->user()->cannot('delete', $space)) {
+        if ($request->user()->cannot('edit', $space)) {
             return response()->json(['message' => 'You do not have the right to delete this space.'], Response::HTTP_FORBIDDEN);
         }
 
@@ -100,7 +102,40 @@ class SpaceApiController extends Controller
 
     public function getPersonalSpaces(Request $request): JsonResponse
     {
-        return response()->json($request->user()->spaces);
+        $spaces = $request->user()->spaces()
+            ->with('owner')
+            ->withCount(['files', 'folders'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        foreach ($spaces as $space) {
+            $space->groups = $space->groups();
+            $space->users = $space->users();
+        }
+
+        return response()->json($spaces);
+    }
+
+    public function getSharedWithMe(Request $request): JsonResponse
+    {
+        /*
+         * the spaces that are considered being shared with the user are those on where he or his group
+         * have the right to view the space
+         */
+
+        $user = $request->user();
+
+        // user has direct privileges on those spaces
+        $spaces = $this->getDirectSharedResources($user, Space::class)
+            ->orderBy('shared_at', 'desc')
+            ->with('owner')->get();
+
+        foreach ($spaces as $space) {
+            $space->groups = $space->groups();
+            $space->users = $space->users();
+        }
+
+        return response()->json($spaces);
     }
 
     public function getContent(Request $request, Space $space): JsonResponse
@@ -115,5 +150,17 @@ class SpaceApiController extends Controller
         $merged = $files->merge($folders);
 
         return response()->json($merged);
+    }
+
+    public function share(Request $request, Space $space): JsonResponse
+    {
+        $user = $request->user();
+        return response()->json($this->manageShareResource($user, $request, $space));
+    }
+
+    public function getPotentialMembers(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        return response()->json($this->getSharees($user, $request));
     }
 }

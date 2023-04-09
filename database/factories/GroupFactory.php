@@ -21,7 +21,6 @@ class GroupFactory extends Factory
     public function definition(): array
     {
         $groups = [
-            'Admins',
             'Professors',
             'Students',
         ];

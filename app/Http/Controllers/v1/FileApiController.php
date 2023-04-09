@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\v1;
 
+use App\Enums\Privileges;
 use App\Http\Controllers\Controller;
 use App\Models\File;
 use App\Models\Folder;
@@ -9,6 +10,7 @@ use App\Models\Group;
 use App\Models\Space;
 use App\Models\User;
 use App\Traits\PathTrait;
+use App\Traits\ShareTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -18,7 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FileApiController extends Controller
 {
-    use PathTrait;
+    use PathTrait, ShareTrait;
     /**
      * Display a listing of the resource.
      *
@@ -47,14 +49,13 @@ class FileApiController extends Controller
 
         $request->validate([
             'file' => 'required',
-            'parent_folder_id' => 'nullable|exists:folders,id',
             'space_id' => 'required|exists:spaces,id',
         ]);
 
         // check if the user has the right to upload the file either in the space or in the folder
-        $parentFolder = Folder::query()->find($request['parent_folder_id']);
-        if ($parentFolder) {
 
+        if ($request->filled('parent_folder_id')) {
+            $parentFolder = Folder::query()->find($request['parent_folder_id']);
             $request['space_id'] = $parentFolder->space_id; //just in case the space_id is wrong
 
             if ($user->cannot('uploadInto', $parentFolder)) {
@@ -143,7 +144,7 @@ class FileApiController extends Controller
      */
     public function destroy(File $file): JsonResponse
     {
-        if (Gate::denies('delete', $file)) {
+        if (Gate::denies('edit', $file)) {
             return response()->json(['message' => 'You do not have the required privileges to delete this file.'], Response::HTTP_FORBIDDEN);
         }
 
@@ -160,72 +161,12 @@ class FileApiController extends Controller
          */
 
         $user = $request->user();
-        $groups = $user->groups->pluck('id');
 
         // user has direct privileges on those files
-        $direct_shared_files =
-            File::query()->select(['files.*', 'privileges.updated_at as shared_at'])
-            ->join('privileges', function ($join) use ($groups, $user) {
-                $join->on('privileges.target_id', '=', 'files.id')
-
-                    ->where('privileges.target_type', '=', File::class)
-
-                    ->where(function ($query) use ($groups, $user) {
-
-                        $query->where(function ($query) use ($user) {
-                                $query->where('privileges.grantee_id', '=', $user->id)
-                                    ->where('privileges.grantee_type', '=', User::class);
-                        })
-                              ->orWhere(function ($query) use ($groups) {
-                                $query->whereIn('privileges.grantee_id', $groups)
-                                    ->where('privileges.grantee_type', '=', Group::class);
-                        });
-                    });
-            });
+        $direct_shared_files = $this->getDirectSharedResources($user,File::class);
 
         // user has privileges on ancestor folders of those files
-        $indirect_shared_files =
-            File::query()->select(['files.*', 'privileges.updated_at as shared_at'])
-            ->join('containables', function ($join) {
-                $join->on('containables.containable_id', '=', 'files.id')
-                    ->where('containables.containable_type', '=', File::class);
-            })
-            ->join('folders', 'folders.id', '=', 'containables.folder_id')
-            ->join('privileges', function ($join) use ($groups, $user) {
-                $join->on('privileges.target_id', '=', 'folders.id')
-                    ->where('privileges.target_type', '=', Folder::class)
-                    ->where(function ($query) use ($groups, $user) {
-
-                        $query->where(function ($query) use ($user) {
-                                $query->where('privileges.grantee_id', '=', $user->id)
-                                    ->where('privileges.grantee_type', '=', User::class);
-                        })
-                              ->orWhere(function ($query) use ($groups) {
-                                $query->whereIn('privileges.grantee_id', $groups)
-                                    ->where('privileges.grantee_type', '=', Group::class);
-                        });
-                    });
-            });
-
-        // user has privileges on the parent space of those files
-        $indirect_shared_files = $indirect_shared_files->union(
-            File::query()->select(['files.*', 'privileges.updated_at as shared_at'])
-            ->join('spaces', 'spaces.id', '=', 'files.space_id')
-            ->join('privileges', function ($join) use ($groups, $user) {
-                $join->on('privileges.target_id', '=', 'spaces.id')
-                    ->where('privileges.target_type', '=', Space::class)
-                    ->where(function ($query) use ($groups, $user) {
-
-                        $query->where(function ($query) use ($user) {
-                                $query->where('privileges.grantee_id', '=', $user->id)
-                                    ->where('privileges.grantee_type', '=', User::class);
-                        })
-                              ->orWhere(function ($query) use ($groups) {
-                                $query->whereIn('privileges.grantee_id', $groups)
-                                    ->where('privileges.grantee_type', '=', Group::class);
-                        });
-                    });
-            }));
+        $indirect_shared_files = $this->getIndirectSharedResources($user,File::class);
 
         return response()
             ->json($direct_shared_files
@@ -235,4 +176,81 @@ class FileApiController extends Controller
             ->with('owner')->get());
     }
 
+    public function share(Request $request, File $file): JsonResponse
+    {
+        $user = $request->user();
+        return response()->json($this->manageShareResource($user, $request, $file));
+    }
+
+    public function getPotentialMembers(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        return response()->json($this->getSharees($user, $request));
+    }
+
+    public function togglePin(Request $request, File $file): JsonResponse
+    {
+        if ($request->user()->cannot('edit', $file)) {
+            return response()->json(['message' => 'You do not have the required privileges to edit this file.'], Response::HTTP_FORBIDDEN);
+        }
+        $file->pinned = !$file->pinned;
+        $file->save();
+        return response()->json($file);
+    }
+
+    public function createShortcut(Request $request, File $file): JsonResponse
+    {
+        $request->validate([
+            'parent_folder_id' => 'required|integer',
+            'space_id' => 'required|integer',
+        ]);
+
+        $user = $request->user();
+        if ($user->cannot('view', $file)) {
+            return response()->json(['message' => 'You do not have the required privileges to create a shortcut for this file.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $shortcut = File::make([
+            'name'              => $file->name,
+            'parent_folder_id'  => $request['parent_folder_id'],
+            'space_id'          => $request['space_id'],
+            'owner_id'          => $user->id,
+            'mime_type'         => $file->mime_type,
+            'size'              => $file->size,
+            'path'              => $file->path,
+            'shortcut'          => true,
+            'original_id'       => $file->id,
+        ]);
+
+        $shortcut->save();
+
+        return response()->json($shortcut, Response::HTTP_CREATED);
+    }
+
+    public function move(Request $request, File $file): JsonResponse
+    {
+        $user = $request->user();
+        if ($user->cannot('edit', $file)) {
+            return response()->json(['message' => 'You do not have the required privileges to move this file.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $file->parent_folder_id = $request['parent_folder_id'];
+        $file->space_id = $request['space_id'];
+        $file->save();
+
+        return response()->json($file);
+    }
+
+    public function rename(Request $request, File $file): JsonResponse
+    {
+        $user = $request->user();
+        if ($user->cannot('edit', $file)) {
+            return response()->json(['message' => 'You do not have the required privileges to rename this file.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $file->name = $request['name'];
+        $file->save();
+
+        return response()->json($file);
+    }
 }

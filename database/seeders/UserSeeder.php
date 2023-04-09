@@ -32,7 +32,6 @@ class UserSeeder extends Seeder
             [
                 [
                     'name' => 'Public',
-                    'is_permanent' => true,
                 ],
             ]
         );
@@ -55,22 +54,40 @@ class UserSeeder extends Seeder
         ]);
         $stu->filieres()->attach(Filiere::query()->where('abbreviation', '=', 'GL')->first(), ['year' => now()->year]);
 
+        $stu = User::create([
+            'email' => 'brahim_boujdaa@um5.ac.ma',
+            'first_name' => 'Brahim',
+            'last_name' => 'Boujdaa',
+            'password' => Hash::make('brahim123'),
+            'role' => Roles::STUDENT,
+        ]);
+        $stu->filieres()->attach(Filiere::query()->where('abbreviation', '=', 'GL')->first(), ['year' => now()->year]);
+
         $prof = User::create([
             'email' => 'Toufik@um5.ac.ma',
             'first_name' => 'Toufik',
-            'last_name' => 'Toufik',
+            'last_name' => 'Fouad',
             'password' => Hash::make('toufik123'),
             'role' => Roles::PROFESSOR,
         ]);
 
         $prof->filieres()->attach(Filiere::query()->where('abbreviation', '=', 'GL')->first(), ['year' => now()->year]);
-        $prof->spaces()->create(['name' => 'Java Avanée']);
+        $prof->filieres()->attach(Filiere::query()->where('abbreviation', '=', 'ARI')->first(), ['year' => now()->year]);
 
-        foreach ($prof->spaces() as $space) {
-            $space->folders()->saveMany(Folder::factory()->afterCreating(function (Folder $folder) {
-                $folder->files()->saveMany(File::factory()->count(5)->create());
-            })->count(3)->create(['owner_id' => $prof->id, 'space_id' => $space->id,]));
-        }
+        $prof->save();
+
+
+        $prof = User::create([
+            'email' => 'Prof_1@um5.ac.ma',
+            'first_name' => 'Prof',
+            'last_name' => '1',
+            'password' => Hash::make('prof123'),
+            'role' => Roles::PROFESSOR,
+        ]);
+
+        $prof->filieres()->attach(Filiere::query()->where('abbreviation', '=', 'GL')->first(), ['year' => now()->year]);
+        $prof->filieres()->attach(Filiere::query()->inRandomOrder()->take(2)->get(), ['year' => now()->year]);
+        $prof->save();
 
         User::factory()
             ->count(200)

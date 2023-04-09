@@ -62,5 +62,10 @@ trait AccessTrait {
 
         return $canUploadInto;
     }
+
+    public function share(User $user, File|Folder|Space $target): bool
+    {
+        return $user->can('edit', $target);
+    }
 }
 

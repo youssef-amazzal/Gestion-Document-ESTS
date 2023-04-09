@@ -61,6 +61,37 @@ class Space extends Model
     public function privileges() {
         return $this->morphMany(Privilege::class, 'target');
     }
+
+    public function groups() {
+        $groups = Group::query()->whereHas('privileges', function ($query) {
+            $query->where('target_id', $this->id);
+            $query->where('target_type', Space::class);
+        })->get();
+
+        foreach ($groups as $group) {
+            $group->privilege = $group->privileges
+                ->where('target_id', $this->id)
+                ->where('target_type', Space::class);
+        }
+
+        return $groups;
+    }
+
+    public function users() {
+        $users = User::query()->whereHas('privileges', function ($query) {
+            $query->where('target_id', $this->id);
+            $query->where('target_type', Space::class);
+        })->get();
+
+        foreach ($users as $user) {
+            $user->privilege = $user->privileges
+                ->where('target_id', $this->id)
+                ->where('target_type', Space::class);
+        }
+
+        return $users;
+    }
+
     public function operations() {
         return $this->morphMany(Operation::class, 'trackable');
     }
