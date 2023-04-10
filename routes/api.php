@@ -60,12 +60,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/upload', [FileApiController::class, 'upload']);
             Route::get('/{file}/download', [FileApiController::class, 'download']);
             Route::get('/shared', [FileApiController::class, 'getSharedWithMe']);
-            Route::post('/{file}/share', [FileApiController::class, 'share']);
+            Route::put('/{file}/share', [FileApiController::class, 'share']);
             Route::get('/members', [FileApiController::class, 'getPotentialMembers']);
-            Route::patch('/{file}/move', [FileApiController::class, 'move']);
-            Route::patch('/{file}/rename', [FileApiController::class, 'rename']);
+            Route::put('/{file}/move', [FileApiController::class, 'move']);
+            Route::put('/{file}/rename', [FileApiController::class, 'rename']);
             Route::post('/{file}/shortcut', [FileApiController::class, 'createShortcut']);
-            Route::patch('/{file}/pin', [FileApiController::class, 'togglePin']);
+            Route::put('/{file}/pin', [FileApiController::class, 'togglePin']);
         });
 
         Route::prefix('spaces')->group(function () {
@@ -74,24 +74,25 @@ Route::prefix('v1')->group(function () {
             Route::get('/shared', [SpaceApiController::class, 'getSharedWithMe']);
             Route::put('/{space}/share', [SpaceApiController::class, 'share']);
             Route::get('/members', [SpaceApiController::class, 'getPotentialMembers']);
+            Route::get('/tree', [SpaceApiController::class, 'getTree']);
         });
 
         Route::prefix('folders')->group(function () {
             Route::get('/{folder}/content', [FolderApiController::class, 'getContent']);
-            Route::post('/{folder}/share', [FolderApiController::class, 'share']);
+            Route::put('/{folder}/share', [FolderApiController::class, 'share']);
             Route::get('/shared', [FolderApiController::class, 'getSharedWithMe']);
             Route::get('/members', [FolderApiController::class, 'getPotentialMembers']);
-            Route::patch('/{folder}/move', [FolderApiController::class, 'move']);
-            Route::patch('/{folder}/rename', [FolderApiController::class, 'rename']);
+            Route::put('/{folder}/move', [FolderApiController::class, 'move']);
+            Route::put('/{folder}/rename', [FolderApiController::class, 'rename']);
             Route::post('/{folder}/shortcut', [FolderApiController::class, 'createShortcut']);
-            Route::patch('/{folder}/pin', [FolderApiController::class, 'togglePin']);
+            Route::put('/{folder}/pin', [FolderApiController::class, 'togglePin']);
         });
 
         Route::prefix('groups')->group(function () {
             Route::get('/owned', [GroupApiController::class, 'getOwnedGroups']);
-            Route::get('/{group}/members', [GroupApiController::class, 'getPotentialMembers']);
-            Route::patch('/{group}/toggle', [GroupApiController::class, 'toggleMembers']);
-            Route::patch('/{group}/rename', [GroupApiController::class, 'rename']);
+            Route::get('/members', [GroupApiController::class, 'getPotentialMembers']);
+            Route::put('/{group}/toggle', [GroupApiController::class, 'toggleMembers']);
+            Route::put('/{group}/rename', [GroupApiController::class, 'rename']);
         });
 
         Route::apiResources([

@@ -94,7 +94,16 @@ class FolderApiController extends Controller
             return response()->json(['message' => 'You do not have the required privileges to edit this folder.'], Response::HTTP_FORBIDDEN);
         }
 
-        $folder->update($request->all());
+        $folder->update([
+            'name' => $request->name,
+            'parent_folder_id' => $request->parent_folder_id,
+            'space_id' => $request->space_id,
+            'owner_id' => $request->owner_id,
+            'is_shortcut' => $request->is_shortcut,
+            'original_id' => $request->original_id,
+            'size' => $request->size ?? '0',
+        ]);
+
         return response()->json($folder);
     }
 
@@ -120,10 +129,19 @@ class FolderApiController extends Controller
             return response()->json(['message' => 'You do not have the right to view this folder.'], Response::HTTP_FORBIDDEN);
         }
 
-        $folders = $folder->files()->get();
-        $folders = $folder->folders()->get();
+        $files = $folder->files()->with(['owner','tags'])->orderBy('created_at')->get();
+        foreach ($files as $file) {
+            $file->groups = $file->groups();
+            $file->users = $file->users();
+        }
 
-        $merged = $folders->merge($folders);
+        $folders = $folder->folders()->with(['owner','tags'])->orderBy('created_at')->get();
+        foreach ($folders as $folder) {
+            $folder->groups = $folder->groups();
+            $folder->users = $folder->users();
+        }
+
+        $merged = $folders->merge($files);
 
         return response()->json($merged);
     }
@@ -143,12 +161,30 @@ class FolderApiController extends Controller
         // user has privileges on ancestor folders of those folders
         $indirect_shared_folders = $this->getIndirectSharedResources($user,Folder::class);
 
-        return response()
-            ->json($direct_shared_folders
-                ->union($indirect_shared_folders)
-                ->orderBy('created_at', 'desc')
-                ->limit($request->limit)
-                ->with('owner')->get());
+        $shared_folders = $direct_shared_folders
+            ->merge($indirect_shared_folders)
+            ->limit($request->limit)
+            ->with('owner')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        foreach ($shared_folders as $folder) {
+            $folder->groups = $folder->groups();
+            $folder->users = $folder->users();
+        }
+
+        return response()->json($shared_folders);
+    }
+
+    public function getPinned(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $pinned_folders = $user->folders()->where('is_pinned', true)->with('owner')->get();
+        foreach ($pinned_folders as $folder) {
+            $folder->groups = $folder->groups();
+            $folder->users = $folder->users();
+        }
+        return response()->json($pinned_folders);
     }
 
     public function share(Request $request, Folder $folder): JsonResponse

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ShareTrait;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -65,7 +66,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class Folder extends Model
 {
-    use HasFactory;
+    use HasFactory, ShareTrait;
 
     protected $guarded = [];
     protected $hidden = ['parentFolder', 'ancestors'];

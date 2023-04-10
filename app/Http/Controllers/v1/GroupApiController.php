@@ -30,7 +30,15 @@ class GroupApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $group = Group::query()->create($request->all());
+        $request->validate([
+            'name' => 'required',
+        ]);
+
+        $group = Group::create([
+            'name' => $request['name'],
+            'user_id' => $request->user()->id,
+        ]);
+
         return response()->json($group, 201);
     }
 
@@ -84,21 +92,30 @@ class GroupApiController extends Controller
         return response()->json($groups->get());
     }
 
-    public function getPotentialMembers(Request $request, Group $group): JsonResponse
+    public function getPotentialMembers(Request $request): JsonResponse
     {
         $owner = $request->user();
 
+        $request->validate([
+            'group_id' => 'nullable|integer|exists:groups,id'
+        ]);
+
+        $group_id = $request->filled('group_id') ? $request->get('group_id') : -1;
+
         if ($owner->role === Roles::PROFESSOR) {
             $users = User::query()
-                ->select(['users.*', DB::raw("CASE when users.id IN (SELECT user_id FROM group_user WHERE group_id = $group->id) THEN 1 ELSE 0 END AS is_member")])
+                ->select(['users.*', DB::raw("CASE when users.id IN (SELECT user_id FROM group_user WHERE group_id = $group_id) THEN 1 ELSE 0 END AS is_member")])
                 ->where('id', '!=', $owner->id)
                 ->whereIn('id', $owner->students()->pluck('id'))
                 ->get();
-        } else {
+        } else if ($owner->role === Roles::ADMIN) {
             $users = User::query()
-                ->select(['users.*', DB::raw("CASE when users.id IN (SELECT user_id FROM group_user WHERE group_id = $group->id) THEN 1 ELSE 0 END AS is_member")])
+                ->select(['users.*', DB::raw("CASE when users.id IN (SELECT user_id FROM group_user WHERE group_id = $group_id) THEN 1 ELSE 0 END AS is_member")])
                 ->where('id', '!=', $owner->id)
                 ->get();
+        }
+        else {
+            return response()->json([], 403);
         }
 
         return response()->json($users);
@@ -107,8 +124,7 @@ class GroupApiController extends Controller
     public function toggleMembers(Request $request, Group $group): JsonResponse
     {
         $request->validate([
-            'members' => 'required|array',
-            'members.*' => 'required|integer|exists:users,id'
+            'data.*' => 'required|integer|exists:users,id'
         ]);
 
         $owner = $request->user();
@@ -116,7 +132,7 @@ class GroupApiController extends Controller
             return response()->json(null, 403);
         }
 
-        $membersIds = $request->get('members');
+        $membersIds = $request->all();
         $members = User::query()->whereIn('id', $membersIds)->get();
         $newMembers = $members->diff($group->users);
         $oldMembers = $members->intersect($group->users);

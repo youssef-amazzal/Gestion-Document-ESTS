@@ -132,7 +132,17 @@ class FileApiController extends Controller
             return response()->json(['message' => 'You do not have the required privileges to edit this file.'], Response::HTTP_FORBIDDEN);
         }
 
-        $file->update($request->all());
+        $file->update([
+            'name' => $request->name,
+            'parent_folder_id' => $request->parent_folder_id,
+            'space_id' => $request->space_id,
+            'owner_id' => $request->owner_id,
+            'is_shortcut' => $request->is_shortcut,
+            'original_id' => $request->original_id,
+            'size' => $request->size ?? '0',
+            'mime_type' => $request->mime_type,
+            'path' => $request->path
+        ]);
         return response()->json($file);
     }
 
@@ -168,12 +178,30 @@ class FileApiController extends Controller
         // user has privileges on ancestor folders of those files
         $indirect_shared_files = $this->getIndirectSharedResources($user,File::class);
 
-        return response()
-            ->json($direct_shared_files
+        $shared_files = $direct_shared_files
             ->union($indirect_shared_files)
-            ->orderBy('created_at', 'desc')
             ->limit($request->limit)
-            ->with('owner')->get());
+            ->with('owner')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        foreach ($shared_files as $file) {
+            $file->groups = $file->groups();
+            $file->users = $file->users();
+        }
+
+        return response()->json($shared_files);
+    }
+
+    public function getPinned(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $pinned_files = $user->files()->where('is_pinned', true)->with('owner')->get();
+        foreach ($pinned_files as $file) {
+            $file->groups = $file->groups();
+            $file->users = $file->users();
+        }
+        return response()->json($pinned_files);
     }
 
     public function share(Request $request, File $file): JsonResponse

@@ -144,8 +144,17 @@ class SpaceApiController extends Controller
             return response()->json(['message' => 'You do not have the right to view this space.'], Response::HTTP_FORBIDDEN);
         }
 
-        $files = $space->files()->doesntHave('parentFolder')->get();
-        $folders = $space->folders()->doesntHave('parentFolder')->get();
+        $files = $space->files()->doesntHave('parentFolder')->with(['owner','tags'])->orderBy('created_at')->get();
+        foreach ($files as $file) {
+            $file->groups = $file->groups();
+            $file->users = $file->users();
+        }
+
+        $folders = $space->folders()->doesntHave('parentFolder')->with(['owner','tags'])->orderBy('created_at')->get();
+        foreach ($folders as $folder) {
+            $folder->groups = $folder->groups();
+            $folder->users = $folder->users();
+        }
 
         $merged = $files->merge($folders);
 
@@ -162,5 +171,20 @@ class SpaceApiController extends Controller
     {
         $user = $request->user();
         return response()->json($this->getSharees($user, $request));
+    }
+
+    // get all spaces and their folders
+    public function getTree(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $spaces = $user->spaces()->with([
+            'folders' => function ($query) {
+                $query->doesntHave('parentFolder');
+            },
+            'folders.folders'
+        ])->get();
+        return response()->json([
+            'spaces' => $spaces,
+        ]);
     }
 }

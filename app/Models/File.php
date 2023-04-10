@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ShareTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -61,7 +62,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class File extends Model
 {
-    use HasFactory;
+    use HasFactory, ShareTrait;
     protected $guarded = [];
     protected $hidden = ['path', 'parentFolder', 'ancestors'];
 

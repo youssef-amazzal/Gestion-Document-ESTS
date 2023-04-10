@@ -15,6 +15,36 @@ use Validator;
 
 trait ShareTrait {
 
+    public function groups() {
+        $groups = Group::query()->whereHas('privileges', function ($query) {
+            $query->where('target_id', $this->id);
+            $query->where('target_type', static::class);
+        })->get();
+
+        foreach ($groups as $group) {
+            $group->privilege = $group->privileges
+                ->where('target_id', $this->id)
+                ->where('target_type', static::class);
+        }
+
+        return $groups;
+    }
+
+    public function users() {
+        $users = User::query()->whereHas('privileges', function ($query) {
+            $query->where('target_id', $this->id);
+            $query->where('target_type', static::class);
+        })->get();
+
+        foreach ($users as $user) {
+            $user->privilege = $user->privileges
+                ->where('target_id', $this->id)
+                ->where('target_type', static::class);
+        }
+
+        return $users;
+    }
+
     public function manageShareResource(User $user, Request $request, Space|Folder|File $resource) {
         $response= [];
 
@@ -108,8 +138,6 @@ trait ShareTrait {
     }
 
     public function getSharees(User $user, Request $request) {
-
-
 
         $groups = $user->ownedGroups;
         $users = $user->role === Roles::PROFESSOR ? $user->students()->get() : User::all();

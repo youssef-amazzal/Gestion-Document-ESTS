@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\ShareTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
@@ -38,7 +39,7 @@ use Illuminate\Support\Facades\Storage;
  */
 class Space extends Model
 {
-    use HasFactory;
+    use HasFactory, ShareTrait;
 
     protected static function booted()
     {
@@ -62,35 +63,7 @@ class Space extends Model
         return $this->morphMany(Privilege::class, 'target');
     }
 
-    public function groups() {
-        $groups = Group::query()->whereHas('privileges', function ($query) {
-            $query->where('target_id', $this->id);
-            $query->where('target_type', Space::class);
-        })->get();
 
-        foreach ($groups as $group) {
-            $group->privilege = $group->privileges
-                ->where('target_id', $this->id)
-                ->where('target_type', Space::class);
-        }
-
-        return $groups;
-    }
-
-    public function users() {
-        $users = User::query()->whereHas('privileges', function ($query) {
-            $query->where('target_id', $this->id);
-            $query->where('target_type', Space::class);
-        })->get();
-
-        foreach ($users as $user) {
-            $user->privilege = $user->privileges
-                ->where('target_id', $this->id)
-                ->where('target_type', Space::class);
-        }
-
-        return $users;
-    }
 
     public function operations() {
         return $this->morphMany(Operation::class, 'trackable');
